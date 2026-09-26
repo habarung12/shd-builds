@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>База снаряжения — SHD Builds</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/shd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+</head>
+
+<body class="scanlines" x-data="gearDb()" x-init="init()">
+<div id="shd-nav"></div>
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-8">
+
+  <!-- ============ ШАПКА ============ -->
+  <header class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <div class="space-y-2">
+      <p class="hud-label">ISAC // Архив снаряжения // Бренды и комплекты</p>
+      <h1 class="hud-h1">База снаряжения</h1>
+      <p class="text-shd-muted max-w-2xl">Подберите бренд или зелёный комплект под свою задумку и узнайте, где его фармить.</p>
+    </div>
+    <div class="flex gap-6 font-mono text-sm">
+      <div><p class="hud-label">Сетов</p><p class="hud-data text-2xl" x-text="stats.sets"></p></div>
+      <div><p class="hud-label">Брендов</p><p class="hud-data text-2xl" x-text="stats.brands"></p></div>
+      <div><p class="hud-label">Найдено</p><p class="hud-data text-2xl" x-text="filtered.length"></p></div>
+    </div>
+  </header>
+
+  <!-- ============ ПАНЕЛЬ ФИЛЬТРОВ ============ -->
+  <section class="panel panel-brackets space-y-5" aria-label="Фильтры">
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
+      <label class="block space-y-1.5">
+        <span class="hud-label">Поиск</span>
+        <input type="search" class="hud-input" placeholder="Striker, Česká, крит, броня…" x-model.debounce.150ms="q">
+      </label>
+
+      <div class="space-y-1.5">
+        <span class="hud-label block">Тип</span>
+        <div class="flex flex-wrap gap-2">
+          <template x-for="t in types" :key="t.id">
+            <button type="button" class="btn-toggle" :aria-pressed="type === t.id" @click="type = t.id">
+              <span x-text="t.label"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="hud-label block">Сортировка</span>
+        <select class="hud-input !py-2 !w-auto" x-model="sort">
+          <option value="az">А → Я</option>
+          <option value="type">Сначала сеты</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="space-y-1.5">
+        <span class="hud-label block">Тип бонуса</span>
+        <div class="flex flex-wrap gap-2">
+          <template x-for="c in cats" :key="c.id">
+            <button type="button" class="btn-toggle" :style="`--dot:${c.color}`"
+                    :aria-pressed="catSel.includes(c.id)" @click="toggle(catSel, c.id)">
+              <span x-text="c.label"></span><span class="count" x-text="countBy('cat', c.id)"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <span class="hud-label block">Где искать</span>
+        <div class="flex flex-wrap gap-2">
+          <template x-for="s in sources" :key="s.id">
+            <button type="button" class="btn-toggle" :aria-pressed="srcSel.includes(s.id)" @click="toggle(srcSel, s.id)">
+              <span x-text="s.short"></span><span class="count" x-text="countBy('src', s.id)"></span>
+            </button>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 pt-4">
+      <p class="font-mono text-xs text-shd-muted">
+        Показано <span class="text-shd-orange" x-text="filtered.length"></span> из <span x-text="items.length"></span>
+        <template x-if="catSel.length"><span> · бонус: <span class="text-shd-text" x-text="catSel.map(id => cats.find(c=>c.id===id).label).join(' + ')"></span></span></template>
+      </p>
+      <button type="button" class="btn-ghost" x-show="isDirty" x-transition.opacity @click="reset()">Сбросить фильтры</button>
+    </div>
+  </section>
+
+  <!-- ============ СЕТКА ПЛИТОК ============ -->
+  <section aria-live="polite">
+    <div class="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <template x-for="item in filtered" :key="item.id">
+        <article class="tile" :class="item.kind === 'set' ? 'is-set' : 'is-brand'">
+          <!-- Заголовок -->
+          <header class="flex items-start gap-3 p-4 pb-3">
+            <div class="brand-hex" x-text="item.code"></div>
+            <div class="min-w-0 flex-1">
+              <p class="hud-label" x-text="item.kind === 'set' ? 'Gear Set · 4 предмета' : 'Бренд · 3 предмета'"></p>
+              <h2 class="hud-h3 truncate" x-text="item.name"></h2>
+              <div class="flex gap-1.5 mt-1.5">
+                <template x-for="c in item.cats" :key="c">
+                  <span class="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-shd-muted">
+                    <i class="w-2 h-2 rotate-45" :style="`background:${catColor(c)}`"></i><span x-text="catLabel(c)"></span>
+                  </span>
+                </template>
+              </div>
+            </div>
+          </header>
+
+          <!-- Бонусы (наведите — неоновая подсветка) -->
+          <ul class="border-y border-white/5 py-1 flex-1">
+            <template x-for="b in item.bonuses" :key="b.pc">
+              <li class="bonus-row" tabindex="0">
+                <span class="pc" x-text="b.pc + (b.pc === 1 ? ' piece' : ' pieces')"></span>
+                <span class="txt" x-text="b.text"></span>
+              </li>
+            </template>
+            <template x-for="t in (item.talents || [])" :key="t.slot">
+              <li class="bonus-row is-talent" tabindex="0">
+                <span class="pc" x-text="t.slot"></span>
+                <span class="txt"><b x-text="t.name"></b> — <span x-text="t.text"></span></span>
+              </li>
+            </template>
+          </ul>
+
+          <!-- Где искать -->
+          <footer class="p-4 pt-3 space-y-2">
+            <p class="hud-label">Где искать</p>
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="s in item.src" :key="s">
+                <span class="src" :class="['src-' + srcKind(s), item.exclusive && 'src-exclusive']" x-text="srcLabel(s)"></span>
+              </template>
+            </div>
+          </footer>
+        </article>
+      </template>
+    </div>
+
+    <!-- Пустое состояние -->
+    <div x-cloak x-show="!filtered.length" class="panel text-center py-16 space-y-3">
+      <p class="hud-data text-4xl">0</p>
+      <p class="hud-h3">Совпадений не найдено</p>
+      <p class="text-shd-muted">ISAC не нашёл снаряжение по этим параметрам.</p>
+      <button type="button" class="btn-ghost" @click="reset()">Сбросить фильтры</button>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/5 pt-6 hud-label leading-relaxed">
+    Значения бонусов и источники — демонстрационные данные; сверяйте с актуальным патчем.<br>
+    SHD Builds · Фанатский проект, не связан с Ubisoft
+  </footer>
+</main>
+
+<script>
+/* ===== Справочники ===== */
+const CATS = [
+  { id:'offense', label:'Урон от оружия', color:'#e8483b' },
+  { id:'defense', label:'Броня',          color:'#3b8fe8' },
+  { id:'skill',   label:'Сила навыков',   color:'#f2c230' },
+];
+const SOURCES = [
+  { id:'world',     short:'Открытый мир / Миссии', kind:'world' },
+  { id:'targeted',  short:'Целевой трофей',        kind:'targeted' },
+  { id:'summit',    short:'Саммит',                kind:'summit' },
+  { id:'countdown', short:'Обратный отсчёт',       kind:'countdown' },
+  { id:'raid-ih',   short:'Рейд: Железный конь',   kind:'raid' },
+  { id:'dz',        short:'Тёмная зона',           kind:'dz' },
+];
+
+/* ===== Данные (замените на fetch('/api/gear')) =====
+   kind: 'set' | 'brand'; cats: типы бонуса; src: id из SOURCES; exclusive: только из этих источников */
+const GEAR = [
+  // ---------- GEAR SETS ----------
+  { id:'striker', kind:'set', code:'ST', name:"Striker's Battlegear", cats:['offense'],
+    bonuses:[ {pc:2,text:'+15% к обращению с оружием'}, {pc:3,text:'+15% к скорострельности'},
+              {pc:4,text:"Striker's Gamble: попадания дают стаки, каждый увеличивает общий урон оружия"} ],
+    talents:[ {slot:'Жилет',name:'Press the Advantage',text:'макс. стаков 100 → 200'},
+              {slot:'Рюкзак',name:'Risk Management',text:'больше урона за каждый стак'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'heartbreaker', kind:'set', code:'HB', name:'Heartbreaker', cats:['offense','defense'],
+    bonuses:[ {pc:2,text:'+15% к обращению с оружием'}, {pc:3,text:'+15% к урону штурмовых винтовок и пулемётов'},
+              {pc:4,text:'Heartstopper: хедшоты помечают цель пульсом, попадания по ней копят бонусную броню'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'hunters-fury', kind:'set', code:'HF', name:"Hunter's Fury", cats:['offense','defense'],
+    bonuses:[ {pc:2,text:'+15% к урону ПП и дробовиков'}, {pc:3,text:'Броня и здоровье при убийстве'},
+              {pc:4,text:'Apex Predator: враги рядом дезориентируются, убийства усиливают урон оружия'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'negotiator', kind:'set', code:'ND', name:"Negotiator's Dilemma", cats:['offense'],
+    bonuses:[ {pc:2,text:'+15% к шансу крит. попадания'}, {pc:3,text:'+20% к урону крит. попадания'},
+              {pc:4,text:'Hostile Negotiations: крит-попадания метят врагов и распространяют урон по меткам'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'ongoing', kind:'set', code:'OD', name:'Ongoing Directive', cats:['offense'],
+    bonuses:[ {pc:2,text:'+15% к эффектам состояний'}, {pc:3,text:'+20% к скорости перезарядки'},
+              {pc:4,text:'Rules of Engagement: убийства дают экспансивные патроны с кровотечением'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'foundry', kind:'set', code:'FB', name:'Foundry Bulwark', cats:['defense'],
+    bonuses:[ {pc:2,text:'+10% к общей броне'}, {pc:3,text:'+1% к регенерации брони в секунду'},
+              {pc:4,text:'Makeshift Repairs: урон по вашей броне или щиту частично восстанавливает другое'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'system-corruption', kind:'set', code:'SC', name:'System Corruption', cats:['defense'], exclusive:true,
+    bonuses:[ {pc:2,text:'+10% брони при убийстве'}, {pc:3,text:'+15% к регенерации брони'},
+              {pc:4,text:'Hackstep Protocol: при низкой броне даёт бонусную броню и скрывает вас'} ],
+    src:['dz'] },
+
+  { id:'future-initiative', kind:'set', code:'FI', name:'Future Initiative', cats:['skill','defense'], exclusive:true,
+    bonuses:[ {pc:2,text:'+30% к ремонту навыками'}, {pc:3,text:'+30% к длительности навыков'},
+              {pc:4,text:'Ground Control: при полной броне отряд получает урон и ремонт брони'} ],
+    src:['raid-ih'] },
+
+  { id:'rigger', kind:'set', code:'RG', name:'Rigger', cats:['skill'],
+    bonuses:[ {pc:2,text:'+15% к ускорению навыков'}, {pc:3,text:'+20% к длительности навыков'},
+              {pc:4,text:'Tend and Spread: взаимодействие с навыками продлевает их и сбрасывает перезарядку'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'eclipse', kind:'set', code:'EP', name:'Eclipse Protocol', cats:['skill'],
+    bonuses:[ {pc:2,text:'+15% к эффектам состояний'}, {pc:3,text:'+20% к ускорению навыков'},
+              {pc:4,text:'Indirect Transmission: состояния распространяются на врагов при убийстве'} ],
+    src:['targeted','summit','countdown'] },
+
+  // ---------- БРЕНДЫ ----------
+  { id:'grupo', kind:'brand', code:'GS', name:'Grupo Sombra S.A.', cats:['offense'],
+    bonuses:[ {pc:1,text:'+15% к урону крит. попадания'}, {pc:2,text:'+15% к урону в голову'}, {pc:3,text:'+10% к урону взрывом'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'ceska', kind:'brand', code:'ČV', name:'Česká Výroba s.r.o.', cats:['offense','defense'],
+    bonuses:[ {pc:1,text:'+10% к шансу крит. попадания'}, {pc:2,text:'+20% к защите от угроз'}, {pc:3,text:'+90% к здоровью'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'providence', kind:'brand', code:'PD', name:'Providence Defense', cats:['offense'],
+    bonuses:[ {pc:1,text:'+15% к урону в голову'}, {pc:2,text:'+8% к шансу крит. попадания'}, {pc:3,text:'+8% к урону крит. попадания'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'fenris', kind:'brand', code:'FG', name:'Fenris Group AB', cats:['offense'],
+    bonuses:[ {pc:1,text:'+10% к урону штурмовых винтовок'}, {pc:2,text:'+15% к скорости перезарядки'}, {pc:3,text:'+20% к стабильности'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'walker', kind:'brand', code:'WH', name:'Walker, Harris & Co.', cats:['offense'],
+    bonuses:[ {pc:1,text:'+5% к урону оружия'}, {pc:2,text:'+5% к урону по броне'}, {pc:3,text:'+5% к урону по здоровью'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'airaldi', kind:'brand', code:'AH', name:'Airaldi Holdings', cats:['offense'],
+    bonuses:[ {pc:1,text:'+10% к урону пехотных винтовок'}, {pc:2,text:'+15% к урону в голову'}, {pc:3,text:'+5% к урону по броне'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'gila', kind:'brand', code:'GG', name:'Gila Guard', cats:['defense'],
+    bonuses:[ {pc:1,text:'+5% к общей броне'}, {pc:2,text:'+1% к регенерации брони в секунду'}, {pc:3,text:'+20% к защите от угроз'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'belstone', kind:'brand', code:'BA', name:'Belstone Armory', cats:['defense'],
+    bonuses:[ {pc:1,text:'+1% к регенерации брони'}, {pc:2,text:'+10% брони при убийстве'}, {pc:3,text:'+10% к общей броне'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'badger', kind:'brand', code:'BT', name:'Badger Tuff', cats:['defense','offense'],
+    bonuses:[ {pc:1,text:'+10% к урону дробовиков'}, {pc:2,text:'+5% к общей броне'}, {pc:3,text:'+10% к урону по броне'} ],
+    src:['world','targeted','countdown'] },
+
+  { id:'hana-u', kind:'brand', code:'HU', name:'Hana-U Corporation', cats:['skill','offense'],
+    bonuses:[ {pc:1,text:'+10% к ускорению навыков'}, {pc:2,text:'+10% к урону навыков'}, {pc:3,text:'+10% к урону оружия'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'wyvern', kind:'brand', code:'WW', name:'Wyvern Wear', cats:['skill'],
+    bonuses:[ {pc:1,text:'+10% к урону навыков'}, {pc:2,text:'+20% к эффектам состояний'}, {pc:3,text:'+15% к длительности навыков'} ],
+    src:['world','targeted','summit','countdown'] },
+
+  { id:'alps', kind:'brand', code:'AS', name:'Alps Summit Armament', cats:['skill'],
+    bonuses:[ {pc:1,text:'+20% к ремонту навыками'}, {pc:2,text:'+10% к длительности навыков'}, {pc:3,text:'+10% к ускорению навыков'} ],
+    src:['world','targeted','summit'] },
+
+  { id:'empress', kind:'brand', code:'EI', name:'Empress International', cats:['skill'],
+    bonuses:[ {pc:1,text:'+10% к здоровью навыков'}, {pc:2,text:'+10% к урону навыков'}, {pc:3,text:'+10% к эффективности навыков'} ],
+    src:['world','targeted','summit','countdown'] },
+];
+
+function gearDb() {
+  return {
+    items: GEAR, cats: CATS, sources: SOURCES,
+    types: [ {id:'all',label:'Все'}, {id:'set',label:'Комплекты'}, {id:'brand',label:'Бренды'} ],
+    q: '', type: 'all', sort: 'type', catSel: [], srcSel: [],
+
+    init() {
+      // восстановление фильтров из URL (?cat=offense&src=dz&type=set&q=...)
+      const p = new URLSearchParams(location.search);
+      this.q = p.get('q') || '';
+      this.type = p.get('type') || 'all';
+      this.catSel = p.getAll('cat');
+      this.srcSel = p.getAll('src');
+      this.$watch('q', () => this.syncUrl());
+      ['type','catSel','srcSel'].forEach(k => this.$watch(k, () => this.syncUrl()));
+    },
+    syncUrl() {
+      const p = new URLSearchParams();
+      if (this.q) p.set('q', this.q);
+      if (this.type !== 'all') p.set('type', this.type);
+      this.catSel.forEach(c => p.append('cat', c));
+      this.srcSel.forEach(s => p.append('src', s));
+      try { history.replaceState(null, '', p.toString() ? '?' + p : location.pathname); } catch (e) {}
+    },
+
+    get stats() { return { sets: this.items.filter(i => i.kind==='set').length, brands: this.items.filter(i => i.kind==='brand').length }; },
+    get isDirty() { return this.q || this.type !== 'all' || this.catSel.length || this.srcSel.length; },
+
+    // Логика: тип бонуса — И (все выбранные), источник — ИЛИ (любой из выбранных)
+    matches(item, { skip } = {}) {
+      const q = this.q.trim().toLowerCase();
+      if (this.type !== 'all' && item.kind !== this.type) return false;
+      if (skip !== 'cat' && this.catSel.length && !this.catSel.every(c => item.cats.includes(c))) return false;
+      if (skip !== 'src' && this.srcSel.length && !this.srcSel.some(s => item.src.includes(s))) return false;
+      if (q) {
+        const hay = [item.name, ...item.bonuses.map(b => b.text), ...(item.talents||[]).map(t => t.name + ' ' + t.text)].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    },
+    get filtered() {
+      const list = this.items.filter(i => this.matches(i));
+      return list.sort((a, b) =>
+        this.sort === 'type' && a.kind !== b.kind ? (a.kind === 'set' ? -1 : 1) : a.name.localeCompare(b.name));
+    },
+    // счётчики на кнопках учитывают остальные активные фильтры
+    countBy(dim, id) {
+      return this.items.filter(i => this.matches(i, { skip: dim }) &&
+        (dim === 'cat' ? i.cats.includes(id) : i.src.includes(id))).length;
+    },
+
+    toggle(arr, id) { const i = arr.indexOf(id); i === -1 ? arr.push(id) : arr.splice(i, 1); },
+    reset() { this.q = ''; this.type = 'all'; this.catSel = []; this.srcSel = []; },
+    catColor(id) { return CATS.find(c => c.id === id)?.color; },
+    catLabel(id) { return CATS.find(c => c.id === id)?.label; },
+    srcLabel(id) { const s = SOURCES.find(x => x.id === id); return s ? s.short : id; },
+    srcKind(id)  { return SOURCES.find(x => x.id === id)?.kind || 'world'; },
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru" class="bg-shd-bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Kit — SHD Builds</title>
+
+<!-- Шрифты: Rajdhani (заголовки), Share Tech Mono (моно-данные) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/shd.js"></script>
+</head>
+
+<body class="scanlines">
+<div id="shd-nav"></div>
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-12">
+
+  <!-- ================= ШАПКА ================= -->
+  <header class="panel panel-brackets flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+    <div class="space-y-2">
+      <p class="hud-label">ISAC // SHD NETWORK // УРОВЕНЬ ДОСТУПА: АГЕНТ</p>
+      <h1 class="hud-h1 glitch" data-text="SHD BUILDS">SHD BUILDS</h1>
+      <p class="font-mono text-sm text-shd-muted hud-cursor">Загрузка тактической конфигурации</p>
+    </div>
+    <div class="grid grid-cols-3 gap-4 sm:gap-8 text-right">
+      <div><p class="hud-label">Урон</p><p class="hud-data text-2xl">1.24M</p></div>
+      <div><p class="hud-label">Броня</p><p class="hud-data text-2xl">870K</p></div>
+      <div><p class="hud-label">Навыки</p><p class="hud-data text-2xl">6</p></div>
+    </div>
+  </header>
+
+  <!-- ================= КНОПКИ ================= -->
+  <section class="space-y-4">
+    <h2 class="hud-h2 hud-section"><span class="hud-prefix">Управление</span></h2>
+    <div class="flex flex-wrap gap-3">
+      <button class="btn-tac">Сохранить билд</button>
+      <button class="btn-ghost">Экспорт</button>
+      <button class="btn-toggle" aria-pressed="true"  onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')!=='true')">PvE</button>
+      <button class="btn-toggle" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')!=='true')">PvP</button>
+      <button class="btn-toggle" aria-pressed="false" onclick="this.setAttribute('aria-pressed', this.getAttribute('aria-pressed')!=='true')">Legendary</button>
+    </div>
+  </section>
+
+  <!-- ================= СНАРЯЖЕНИЕ ================= -->
+  <section class="space-y-4">
+    <h2 class="hud-h2 hud-section"><span class="hud-prefix">Снаряжение</span></h2>
+
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- Карточка: Gear Set -->
+      <article class="gear-card rarity-gearset">
+        <div class="flex items-start gap-3">
+          <div class="gear-icon">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 7l8-4 8 4v6c0 4-3.5 7-8 8-4.5-1-8-4-8-8z"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="hud-label">Бронежилет</p>
+            <h3 class="hud-h3 truncate">Striker's Battlegear</h3>
+            <span class="badge border-shd-gearset/60 text-shd-gearset mt-1">Gear Set</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="attr-row"><span><i class="attr-dot bg-shd-offense"></i>Урон оружия</span><span class="hud-data">+15.0%</span></div>
+          <div class="stat-bar"><span style="width:100%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-offense"></i>Шанс крит.</span><span class="hud-data">+6.0%</span></div>
+          <div class="stat-bar"><span style="width:100%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-defense"></i>Броня</span><span class="hud-data">170,344</span></div>
+        </div>
+        <p class="font-mono text-xs text-shd-muted border-t border-white/5 pt-2">Талант: <span class="text-shd-text">Press the Advantage</span></p>
+      </article>
+
+      <!-- Карточка: Exotic -->
+      <article class="gear-card rarity-exotic">
+        <div class="flex items-start gap-3">
+          <div class="gear-icon">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h14l4-3v6l-4-3M7 12v4"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="hud-label">Штурмовая винтовка</p>
+            <h3 class="hud-h3 truncate">Eagle Bearer</h3>
+            <span class="badge border-shd-exotic/60 text-shd-exotic mt-1">Exotic</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="attr-row"><span><i class="attr-dot bg-shd-offense"></i>Урон</span><span class="hud-data">142,880</span></div>
+          <div class="stat-bar"><span style="width:88%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-offense"></i>Скорострельность</span><span class="hud-data">750 RPM</span></div>
+          <div class="stat-bar"><span style="width:72%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-offense"></i>Урон в голову</span><span class="hud-data">+10.0%</span></div>
+        </div>
+        <p class="font-mono text-xs text-shd-muted border-t border-white/5 pt-2">Талант: <span class="text-shd-text">Eagle's Strike</span></p>
+      </article>
+
+      <!-- Карточка: High-End / Named -->
+      <article class="gear-card rarity-named">
+        <div class="flex items-start gap-3">
+          <div class="gear-icon">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="8"/><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/></svg>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="hud-label">Маска</p>
+            <h3 class="hud-h3 truncate">Nightwatch</h3>
+            <span class="badge border-shd-named/60 text-shd-named mt-1">Named</span>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <div class="attr-row"><span><i class="attr-dot bg-shd-skill"></i>Урон навыков</span><span class="hud-data">+10.0%</span></div>
+          <div class="stat-bar"><span style="width:100%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-skill"></i>Перезарядка</span><span class="hud-data">+12.0%</span></div>
+          <div class="stat-bar"><span style="width:100%"></span></div>
+          <div class="attr-row"><span><i class="attr-dot bg-shd-defense"></i>Броня</span><span class="hud-data">85,172</span></div>
+        </div>
+        <p class="font-mono text-xs text-shd-muted border-t border-white/5 pt-2">Бренд: <span class="text-shd-text">Gila Guard</span></p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ================= ПАЛИТРА ================= -->
+  <section class="space-y-4">
+    <h2 class="hud-h2 hud-section"><span class="hud-prefix">Палитра</span></h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 font-mono text-[11px] uppercase">
+      <div class="panel !p-3"><div class="h-10 bg-shd-bg border border-white/10 mb-2"></div>#0d0f12</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-solid border border-white/10 mb-2"></div>#16191e</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-orange shadow-glow mb-2"></div>#ff6a00</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-text mb-2"></div>#e2e8f0</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-offense mb-2"></div>Offense</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-defense mb-2"></div>Defense</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-skill mb-2"></div>Skill</div>
+      <div class="panel !p-3"><div class="h-10 bg-shd-gearset mb-2"></div>Gear Set</div>
+    </div>
+  </section>
+
+</main>
+</body>
+</html>

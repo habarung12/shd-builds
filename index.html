@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SHD Builds — билды The Division 2</title>
+<meta name="description" content="Билды, база брендов и комплектов снаряжения The Division 2 в стиле интерфейса ИСХ.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/shd.js"></script>
+</head>
+
+<body class="scanlines">
+<div id="shd-nav"></div>
+
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-10 sm:py-16 space-y-16">
+
+  <!-- ============ HERO ============ -->
+  <section class="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
+    <div class="space-y-6">
+      <p class="hud-label">ISAC // SHD NETWORK // Агент, подключение установлено</p>
+      <h1 class="hud-h1 glitch !text-4xl sm:!text-6xl leading-tight" data-text="SHD BUILDS">SHD BUILDS</h1>
+      <p class="text-lg sm:text-xl text-shd-muted max-w-xl leading-snug">
+        Билды, бренды и зелёные комплекты The Division 2. Что собрать, где выбить и почему это работает —
+        в одном тактическом терминале.
+      </p>
+      <p class="font-mono text-sm text-shd-muted hud-cursor">Ожидание команды агента</p>
+      <div class="flex flex-wrap gap-3">
+        <a href="build-striker.html" class="btn-tac">Открыть билд</a>
+        <a href="gear.html" class="btn-ghost">База снаряжения</a>
+      </div>
+    </div>
+
+    <!-- Избранный билд -->
+    <a href="build-striker.html" class="gear-card rarity-gearset !p-6 group">
+      <div class="flex items-start gap-4">
+        <div class="brand-hex !w-14 !h-14">ST</div>
+        <div class="min-w-0 flex-1">
+          <p class="hud-label">Избранный билд · DPS</p>
+          <p class="hud-h2">Striker DPS</p>
+          <span class="badge border-shd-gearset/60 text-shd-gearset mt-1">Gear Set</span>
+        </div>
+        <p class="hud-data text-3xl">9.2</p>
+      </div>
+      <p class="text-shd-muted leading-snug">4× Striker's Battlegear + Coyote's Mask + Česká Výroba. Стаки за попадания, крит в потолке.</p>
+      <div class="space-y-2">
+        <div class="attr-row"><span class="flex items-center"><i class="attr-dot bg-shd-offense"></i>Урон оружия</span><span class="hud-data">6/6 ядер</span></div>
+        <div class="stat-bar"><span style="width:100%"></span></div>
+        <div class="attr-row"><span class="flex items-center"><i class="attr-dot bg-shd-offense"></i>Striker's Gamble</span><span class="hud-data">до +200%</span></div>
+        <div class="stat-bar"><span style="width:85%"></span></div>
+      </div>
+      <p class="font-mono text-xs text-shd-orange tracking-widest group-hover:translate-x-1 transition">ОТКРЫТЬ РАЗБОР →</p>
+    </a>
+  </section>
+
+  <!-- ============ РАЗДЕЛЫ ============ -->
+  <section class="space-y-6">
+    <h2 class="hud-h2 hud-section"><span class="hud-prefix">Разделы</span></h2>
+    <div class="grid gap-5 md:grid-cols-3">
+      <a href="build-striker.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
+        <p class="font-mono text-shd-orange text-3xl">01</p>
+        <p class="hud-h3">Билды</p>
+        <p class="text-shd-muted leading-snug">Что это, что искать, где и когда применять и почему билд работает. Клик по вещи — где её выбить.</p>
+      </a>
+      <a href="gear.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
+        <p class="font-mono text-shd-orange text-3xl">02</p>
+        <p class="hud-h3">База снаряжения</p>
+        <p class="text-shd-muted leading-snug">Все бренды и зелёные комплекты с фильтрами по типу бонуса и источнику: Целевой трофей, Саммит, Обратный отсчёт.</p>
+      </a>
+      <a href="ui-kit.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
+        <p class="font-mono text-shd-orange text-3xl">03</p>
+        <p class="hud-h3">UI Kit</p>
+        <p class="text-shd-muted leading-snug">Дизайн-система ИСХ: палитра, карточки снаряжения, тактические кнопки и HUD-типографика.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ СТАТУС ============ -->
+  <section class="panel grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div><p class="hud-label">Билдов</p><p class="hud-data text-3xl">1</p></div>
+    <div><p class="hud-label">Комплектов</p><p class="hud-data text-3xl">10</p></div>
+    <div><p class="hud-label">Брендов</p><p class="hud-data text-3xl">13</p></div>
+    <div><p class="hud-label">Статус сети</p><p class="font-mono text-3xl text-shd-gearset" style="text-shadow:0 0 8px rgba(41,209,124,.6)">ONLINE</p></div>
+  </section>
+
+  <footer class="border-t border-white/5 pt-6 flex flex-wrap justify-between gap-4 hud-label">
+    <span>SHD Builds · Фанатский проект, не связан с Ubisoft</span>
+    <span>Данные демонстрационные — сверяйте с актуальным патчем</span>
+  </footer>
+</main>
+</body>
+</html>
