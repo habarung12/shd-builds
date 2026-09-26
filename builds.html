@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Билды — SHD Builds</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/shd.js"></script>
+<script src="assets/builds.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+</head>
+
+<body x-data="buildsPage()">
+<div id="shd-nav"></div>
+
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 space-y-6">
+
+  <!-- Заголовок + фильтр ролей -->
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div class="space-y-2">
+      <h1 class="panel-title">Билды</h1>
+      <p class="text-shd-text/80">Готовые сборки под разные роли. Нажмите на билд — откроется полный разбор.</p>
+    </div>
+    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Роль">
+      <template x-for="r in roles" :key="r.id">
+        <button type="button" class="btn-toggle" :aria-pressed="role === r.id" @click="role = r.id">
+          <span x-text="r.label"></span><span class="count" x-text="count(r.id)"></span>
+        </button>
+      </template>
+    </div>
+  </div>
+
+  <!-- Сетка билдов -->
+  <div class="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3">
+    <template x-for="b in list" :key="b.key">
+      <a :href="'build.html?id=' + b.key" class="gear-card group !gap-4" :class="'role-' + roleId(b.role)" :style="`--rarity:${roleColor(b.role)}`">
+        <div class="flex items-start gap-3">
+          <span class="grid place-items-center w-12 h-12 shrink-0 text-lg font-semibold bg-black/30 border border-white/20"
+                :style="`box-shadow: inset 0 -2px 0 ${roleColor(b.role)}`" x-text="b.code"></span>
+          <div class="min-w-0 flex-1">
+            <p class="text-xs text-shd-muted" x-text="b.role + ' · ' + b.setName"></p>
+            <p class="text-xl font-medium truncate" x-text="b.name"></p>
+          </div>
+          <p class="text-2xl font-light tabular-nums" x-text="b.rating.toFixed(1)"></p>
+        </div>
+
+        <p class="text-sm text-shd-text/80 leading-snug flex-1" x-text="b.short"></p>
+
+        <div class="flex flex-wrap gap-1">
+          <template x-for="m in b.modes.filter(m => m.score >= 4)" :key="m.id">
+            <span class="badge" x-text="m.label"></span>
+          </template>
+        </div>
+
+        <div class="flex items-center justify-between border-t border-white/10 pt-3 text-sm">
+          <span class="flex items-center gap-2 text-shd-muted">Сложность
+            <span class="flex gap-0.5"><template x-for="i in 5"><i class="pip" :class="i <= b.difficulty && 'on'"></i></template></span>
+          </span>
+          <span class="text-shd-orange opacity-0 group-hover:opacity-100 transition">Открыть ›</span>
+        </div>
+      </a>
+    </template>
+  </div>
+</main>
+
+<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-shd-text/70">
+  SHD Builds · фанатский проект, не связан с Ubisoft · значения демонстрационные, сверяйте с актуальным патчем
+</footer>
+
+<script>
+function buildsPage() {
+  const COLORS = { 'DPS':'#e8483b', 'Tank':'#3b8fe8', 'Healer':'#29d17c', 'Skill Build':'#f2c230' };
+  return {
+    builds: SHD_BUILDS,
+    role: 'all',
+    roles: [ {id:'all',label:'Все'}, {id:'DPS',label:'DPS'}, {id:'Tank',label:'Танк'}, {id:'Healer',label:'Хилер'}, {id:'Skill Build',label:'Навыки'} ],
+    get list() { return this.role === 'all' ? this.builds : this.builds.filter(b => b.role === this.role); },
+    count(id) { return id === 'all' ? this.builds.length : this.builds.filter(b => b.role === id).length; },
+    roleColor(r) { return COLORS[r] || '#f7941e'; },
+    roleId(r) { return r.toLowerCase().replace(/\s+/g, '-'); },
+  };
+}
+</script>
+</body>
+</html>

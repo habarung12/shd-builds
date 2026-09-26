@@ -28,16 +28,16 @@
       <aside class="frame glass flex flex-col">
         <div class="p-4 border-b border-white/15">
           <p class="text-2xl">Подбор для</p>
-          <p class="text-sm text-white/85 mt-1" x-text="activity.title"></p>
+          <p class="text-sm text-shd-text/85 mt-1" x-text="activity.title"></p>
         </div>
-        <p class="p-4 text-sm text-white/85 leading-relaxed flex-1" x-text="activity.text"></p>
+        <p class="p-4 text-sm text-shd-text/85 leading-relaxed flex-1" x-text="activity.text"></p>
         <div class="border-t border-white/15">
           <template x-for="(p, i) in squad" :key="i">
             <div class="flex items-center gap-3 px-4 h-9 border-b border-white/10 last:border-0 text-sm">
               <i class="w-0.5 h-4" :class="p ? 'bg-shd-gearset' : 'bg-white/15'"></i>
-              <span class="w-5 tabular-nums text-white/70" x-text="String(i+1).padStart(2,'0')"></span>
+              <span class="w-5 tabular-nums text-shd-text/70" x-text="String(i+1).padStart(2,'0')"></span>
               <span x-show="p" x-text="p"></span>
-              <span x-show="!p" class="flex-1 text-center text-white/40 text-lg leading-none">×</span>
+              <span x-show="!p" class="flex-1 text-center text-shd-text/40 text-lg leading-none">×</span>
             </div>
           </template>
         </div>
@@ -86,7 +86,7 @@
                     <button type="button" class="arrow" :aria-label="r.label + ': включить'" @click="set(c, r, true)">‹</button>
                     <button type="button" role="switch" :aria-checked="!!val(r)" class="w-28 text-center" @click="set(c, r, !val(r))">
                       <span class="opt" :class="val(r) && 'on'">Вкл</span>
-                      <span class="text-white/60 mx-1">/</span>
+                      <span class="text-shd-text/60 mx-1">/</span>
                       <span class="opt" :class="!val(r) && 'on'">Выкл</span>
                     </button>
                     <button type="button" class="arrow" :aria-label="r.label + ': выключить'" @click="set(c, r, false)">›</button>
@@ -98,7 +98,7 @@
                   <div class="flex flex-col items-stretch self-end">
                     <div class="flex items-center justify-between">
                       <button type="button" class="arrow" :disabled="val(r) <= r.min" :aria-label="'Уменьшить: ' + r.label" @click="nudge(c, r, -1)">‹</button>
-                      <span class="val"><span x-text="pad(r)"></span><span class="text-xs text-white/50 ml-1" x-text="r.unit"></span></span>
+                      <span class="val"><span x-text="pad(r)"></span><span class="text-xs text-shd-text/50 ml-1" x-text="r.unit"></span></span>
                       <button type="button" class="arrow" :disabled="val(r) >= r.max" :aria-label="'Увеличить: ' + r.label" @click="nudge(c, r, 1)">›</button>
                     </div>
                     <input type="range" class="hud-range w-[70%] self-center" :min="r.min" :max="r.max" :step="r.step"
@@ -113,10 +113,10 @@
 
         <!-- Подсказки клавиш -->
         <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-sm">
-          <p class="text-white/60" x-text="status"></p>
+          <p class="text-shd-text/60" x-text="status"></p>
           <div class="flex flex-wrap items-center gap-5">
-            <button type="button" class="flex items-center gap-2 text-white/85 hover:text-white" @click="resetCat()"><span class="keycap">R</span>Сбросить раздел</button>
-            <button type="button" class="flex items-center gap-2 text-white/85 hover:text-white" @click="save()"><span class="keycap is-accent">↵</span>Применить</button>
+            <button type="button" class="flex items-center gap-2 text-shd-text/85 hover:text-shd-text" @click="resetCat()"><span class="keycap">R</span>Сбросить раздел</button>
+            <button type="button" class="flex items-center gap-2 text-shd-text/85 hover:text-shd-text" @click="save()"><span class="keycap is-accent">↵</span>Применить</button>
           </div>
         </div>
       </div>
@@ -134,14 +134,14 @@
             <p class="text-xl tabular-nums" x-text="String(s.score).padStart(3,'0')"></p>
           </div>
           <div class="stat-bar"><span :style="`width:${s.score}%; background:${s.color}`"></span></div>
-          <p class="text-sm text-white/70 leading-snug" x-text="s.note"></p>
+          <p class="text-sm text-shd-text/70 leading-snug" x-text="s.note"></p>
         </div>
       </template>
     </div>
   </section>
 </main>
 
-<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-white/60">
+<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-shd-text/60">
   SHD Builds · фанатский проект, не связан с Ubisoft · настройки хранятся только в этом браузере
 </footer>
 

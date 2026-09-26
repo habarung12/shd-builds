@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Билд — SHD Builds</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="assets/shd.js"></script>
+<script src="assets/builds.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/focus@3.14.1/dist/cdn.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
+</head>
+
+<body x-data="buildPage()" x-init="document.title = build.name + ' — SHD Builds'" @keydown.escape.window="close()">
+<div id="shd-nav"></div>
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-14">
+
+  <!-- ============ 1. СВОДКА — ЧТО ЭТО? ============ -->
+  <section class="panel grid gap-8 lg:grid-cols-[1fr_auto]">
+    <div class="space-y-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <span class="q-tag">ЧТО?</span>
+        <p class="hud-label">ISAC // Архив билдов // ID <span x-text="build.id"></span></p>
+      </div>
+      <h1 class="hud-h1" :data-text="build.name" x-text="build.name"></h1>
+      <p class="max-w-2xl text-shd-muted text-lg leading-snug" x-text="build.summary"></p>
+      <div class="flex flex-wrap gap-2">
+        <template x-for="r in roles" :key="r">
+          <span class="badge" :class="r === build.role ? 'border-shd-orange text-shd-orange bg-shd-orange/10' : 'border-white/10 text-shd-muted/60'" x-text="r"></span>
+        </template>
+      </div>
+      <p class="hud-label">Патч: <span class="text-shd-text" x-text="build.patch"></span> · Режим: <span class="text-shd-text">PvE</span></p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-x-8 gap-y-5 content-start min-w-[260px]">
+      <div class="col-span-2">
+        <p class="hud-label mb-1">Общая оценка</p>
+        <p class="hud-data text-5xl leading-none"><span x-text="build.rating.toFixed(1)"></span><span class="text-xl text-shd-muted">/10</span></p>
+      </div>
+      <div>
+        <p class="hud-label mb-2">Сложность сборки</p>
+        <div class="flex gap-1"><template x-for="i in 5"><span class="pip" :class="i <= build.difficulty && 'on'"></span></template></div>
+        <p class="font-mono text-xs text-shd-muted mt-1" x-text="difficultyLabel"></p>
+      </div>
+      <div>
+        <p class="hud-label mb-2">Сложность игры</p>
+        <div class="flex gap-1"><template x-for="i in 5"><span class="pip" :class="i <= build.skillFloor && 'on'"></span></template></div>
+        <p class="font-mono text-xs text-shd-muted mt-1" x-text="skillLabel"></p>
+      </div>
+      <template x-for="s in build.keyStats" :key="s.label">
+        <div>
+          <p class="hud-label" x-text="s.label"></p>
+          <p class="hud-data text-xl" x-text="s.value"></p>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <!-- ============ 2. СЕТКА СНАРЯЖЕНИЯ — ЧТО ИСКАТЬ? ============ -->
+  <section class="space-y-5">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="q-tag">ЧТО ИСКАТЬ?</span>
+      <h2 class="hud-h2 hud-section flex-1"><span class="hud-prefix">Снаряжение</span></h2>
+    </div>
+
+    <!-- Легенда атрибутов -->
+    <div class="flex flex-wrap gap-4 font-mono text-xs text-shd-muted">
+      <span><i class="attr-dot bg-shd-offense"></i>Нападение</span>
+      <span><i class="attr-dot bg-shd-defense"></i>Защита</span>
+      <span><i class="attr-dot bg-shd-skill"></i>Навыки</span>
+      <span class="ml-auto hidden sm:inline">Нажмите на предмет → детали и где выбить</span>
+    </div>
+
+    <h3 class="hud-label">Броня · 6 слотов</h3>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <template x-for="item in build.armor" :key="item.slot">
+        <button type="button" class="gear-card" :class="'rarity-' + item.rarity" @click="open(item)">
+          <div class="flex items-start gap-3 w-full">
+            <div class="brand-hex" x-text="item.brandCode"></div>
+            <div class="min-w-0 flex-1">
+              <p class="hud-label" x-text="item.slot"></p>
+              <p class="hud-h3 truncate" x-text="item.name"></p>
+              <span class="badge mt-1" :style="`border-color:var(--rarity);color:var(--rarity)`" x-text="item.rarityLabel"></span>
+            </div>
+          </div>
+          <!-- Основной атрибут -->
+          <div class="w-full">
+            <div class="attr-row"><span class="flex items-center"><i class="attr-dot" :class="coreColor(item.core.type)"></i><span x-text="item.core.name"></span></span><span class="hud-data" x-text="item.core.value"></span></div>
+            <div class="stat-bar mt-1"><span style="width:100%"></span></div>
+          </div>
+          <!-- Вторичные атрибуты -->
+          <ul class="w-full space-y-1">
+            <template x-for="a in item.attrs" :key="a.name">
+              <li class="attr-row text-shd-muted"><span class="flex items-center"><i class="attr-dot" :class="coreColor(a.type)"></i><span x-text="a.name"></span></span><span class="text-shd-text" x-text="a.value"></span></li>
+            </template>
+          </ul>
+          <!-- Талант (жилет/рюкзак/экзотик) -->
+          <p x-show="item.talent" class="w-full font-mono text-xs border-t border-white/5 pt-2 text-shd-muted">
+            Талант: <span class="text-shd-orange" x-text="item.talent?.name"></span>
+          </p>
+        </button>
+      </template>
+    </div>
+
+    <h3 class="hud-label pt-4">Оружие · 3 слота</h3>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <template x-for="item in build.weapons" :key="item.slot">
+        <button type="button" class="gear-card" :class="'rarity-' + item.rarity" @click="open(item)">
+          <div class="flex items-start gap-3 w-full">
+            <div class="brand-hex" x-text="item.brandCode"></div>
+            <div class="min-w-0 flex-1">
+              <p class="hud-label" x-text="item.slot"></p>
+              <p class="hud-h3 truncate" x-text="item.name"></p>
+              <span class="badge mt-1" :style="`border-color:var(--rarity);color:var(--rarity)`" x-text="item.rarityLabel"></span>
+            </div>
+          </div>
+          <div class="w-full">
+            <div class="attr-row"><span class="flex items-center"><i class="attr-dot bg-shd-offense"></i><span x-text="item.core.name"></span></span><span class="hud-data" x-text="item.core.value"></span></div>
+            <div class="stat-bar mt-1"><span style="width:100%"></span></div>
+          </div>
+          <ul class="w-full space-y-1">
+            <template x-for="a in item.attrs" :key="a.name">
+              <li class="attr-row text-shd-muted"><span class="flex items-center"><i class="attr-dot" :class="coreColor(a.type)"></i><span x-text="a.name"></span></span><span class="text-shd-text" x-text="a.value"></span></li>
+            </template>
+          </ul>
+          <p class="w-full font-mono text-xs border-t border-white/5 pt-2 text-shd-muted">
+            Талант: <span class="text-shd-orange" x-text="item.talent.name"></span>
+          </p>
+        </button>
+      </template>
+    </div>
+  </section>
+
+  <!-- ============ 3. ГДЕ И КОГДА ============ -->
+  <section class="space-y-5">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="q-tag">ГДЕ? КОГДА?</span>
+      <h2 class="hud-h2 hud-section flex-1"><span class="hud-prefix">Применение</span></h2>
+    </div>
+
+    <div class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
+      <!-- Теги режимов -->
+      <div class="panel space-y-4">
+        <p class="hud-label">Режимы — выберите для деталей</p>
+        <div class="flex flex-wrap gap-2">
+          <template x-for="m in build.modes" :key="m.id">
+            <button type="button" class="btn-toggle" :aria-pressed="activeMode === m.id" @click="activeMode = m.id" x-text="m.label"></button>
+          </template>
+        </div>
+        <template x-for="m in build.modes" :key="m.id">
+          <div x-show="activeMode === m.id" x-transition.opacity class="space-y-3 border-t border-white/5 pt-4">
+            <div class="flex items-center justify-between">
+              <p class="hud-h3" x-text="m.label"></p>
+              <p class="font-mono text-sm"><span class="text-shd-muted">Эффективность </span><span class="hud-data" x-text="m.score + '/5'"></span></p>
+            </div>
+            <div class="stat-bar"><span :style="`width:${m.score*20}%`"></span></div>
+            <p class="text-shd-muted leading-relaxed" x-text="m.text"></p>
+          </div>
+        </template>
+      </div>
+
+      <!-- Тайминги -->
+      <div class="panel">
+        <p class="hud-label mb-4">Идеальные тайминги</p>
+        <ol class="relative space-y-5 border-l border-shd-orange/30 pl-6">
+          <template x-for="(t, i) in build.timings" :key="i">
+            <li class="relative">
+              <span class="absolute -left-[31px] top-1 w-3 h-3 rotate-45 bg-shd-bg border border-shd-orange" :class="i === 1 && 'bg-shd-orange shadow-glow'"></span>
+              <p class="font-mono text-xs text-shd-orange" x-text="t.phase"></p>
+              <p class="hud-h3 mt-0.5" x-text="t.title"></p>
+              <p class="text-shd-muted leading-snug mt-1" x-text="t.text"></p>
+            </li>
+          </template>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 4. АНАЛИТИКА — ПОЧЕМУ ЭТО РАБОТАЕТ? ============ -->
+  <section class="space-y-5">
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="q-tag">ПОЧЕМУ?</span>
+      <h2 class="hud-h2 hud-section flex-1"><span class="hud-prefix">Анализ синергии</span></h2>
+    </div>
+
+    <div class="grid gap-5" :class="build.sim && 'lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]'">
+      <div class="panel space-y-5">
+        <template x-for="(step, i) in build.synergy" :key="i">
+          <div class="flex gap-4">
+            <span class="font-mono text-shd-orange text-2xl leading-none w-8 shrink-0" x-text="String(i+1).padStart(2,'0')"></span>
+            <div>
+              <p class="hud-h3" x-text="step.title"></p>
+              <p class="text-shd-muted leading-relaxed mt-1" x-html="step.text"></p>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Симулятор стаков (только у билдов с sim: true) -->
+      <div class="panel space-y-5" x-show="build.sim">
+        <p class="hud-label">Симулятор Striker's Gamble</p>
+        <div>
+          <div class="flex justify-between items-end mb-2">
+            <label for="stacks" class="font-mono text-sm text-shd-muted">Стаки</label>
+            <span class="hud-data text-2xl" x-text="effectiveStacks + ' / ' + maxStacks"></span>
+          </div>
+          <input id="stacks" type="range" min="0" max="200" step="1" x-model.number="sim.stacks">
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn-toggle" :aria-pressed="sim.chest" @click="sim.chest = !sim.chest">Жилет · 200 стаков</button>
+          <button type="button" class="btn-toggle" :aria-pressed="sim.backpack" @click="sim.backpack = !sim.backpack">Рюкзак · 1% за стак</button>
+        </div>
+        <div class="border-t border-white/5 pt-4 space-y-2">
+          <div class="attr-row"><span class="text-shd-muted">Бонус за стак</span><span class="text-shd-text" x-text="perStack + '%'"></span></div>
+          <div class="attr-row"><span class="text-shd-muted">Итог. урон оружия от сета</span><span class="hud-data text-3xl" x-text="'+' + gambleBonus + '%'"></span></div>
+          <div class="stat-bar h-2"><span :style="`width:${Math.min(gambleBonus/200*100,100)}%`"></span></div>
+          <p class="font-mono text-[11px] text-shd-muted leading-relaxed pt-2">
+            Модель упрощена: стаки набираются попаданиями и постепенно теряются при паузе в стрельбе. Точные значения зависят от патча — сверяйтесь с патчноутами.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ДРУГИЕ БИЛДЫ ============ -->
+  <section class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <h2 class="hud-h2 hud-section flex-1">Другие билды</h2>
+      <a href="builds.html" class="btn-ghost">Все билды</a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-1.5">
+      <template x-for="b in others" :key="b.key">
+        <a :href="'build.html?id=' + b.key" class="tile-select !min-h-[120px] !justify-center">
+          <span class="text-2xl font-light text-shd-text/70" x-text="b.code"></span>
+          <span class="t-title" x-text="b.name"></span>
+          <span class="t-sub" x-text="b.role"></span>
+        </a>
+      </template>
+    </div>
+  </section>
+
+  <footer class="border-t border-shd-text/20 pt-6 flex flex-wrap justify-between gap-4 hud-label">
+    <span>SHD Builds · Фанатский проект, не связан с Ubisoft</span>
+    <span>Агент, конец связи<span class="animate-blink text-shd-orange">_</span></span>
+  </footer>
+</main>
+
+<!-- ============ МОДАЛЬНОЕ ОКНО ПРЕДМЕТА ============ -->
+<div x-cloak x-show="selected" x-transition.opacity class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/75 backdrop-blur-sm" @click.self="close()">
+  <div x-show="selected" x-transition class="panel w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto overflow-x-hidden !bg-shd-solid/95"
+       :class="selected && 'rarity-' + selected.rarity" role="dialog" aria-modal="true" :aria-label="selected?.name" x-trap.noscroll="selected">
+    <template x-if="selected">
+      <div class="space-y-6">
+        <div class="flex items-start gap-4">
+          <div class="brand-hex !w-14 !h-14" x-text="selected.brandCode"></div>
+          <div class="flex-1 min-w-0">
+            <p class="hud-label" x-text="selected.slot + ' · ' + selected.brand"></p>
+            <h3 class="hud-h2" x-text="selected.name"></h3>
+            <span class="badge mt-1" style="border-color:var(--rarity);color:var(--rarity)" x-text="selected.rarityLabel"></span>
+          </div>
+          <button type="button" class="btn-ghost !px-3" @click="close()" aria-label="Закрыть">✕</button>
+        </div>
+
+        <p class="text-shd-muted leading-relaxed" x-text="selected.why"></p>
+
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div class="space-y-2">
+            <p class="hud-label">Атрибуты (цель ролла)</p>
+            <div class="attr-row"><span class="flex items-center"><i class="attr-dot" :class="coreColor(selected.core.type || 'red')"></i><span x-text="selected.core.name"></span></span><span class="hud-data" x-text="selected.core.value"></span></div>
+            <template x-for="a in selected.attrs" :key="a.name">
+              <div class="attr-row text-shd-muted"><span class="flex items-center"><i class="attr-dot" :class="coreColor(a.type)"></i><span x-text="a.name"></span></span><span class="text-shd-text" x-text="a.value"></span></div>
+            </template>
+            <template x-if="selected.mod">
+              <div class="attr-row text-shd-muted"><span class="flex items-center"><i class="attr-dot bg-white/40"></i>Мод</span><span class="text-shd-text" x-text="selected.mod"></span></div>
+            </template>
+          </div>
+          <div class="space-y-2" x-show="selected.talent">
+            <p class="hud-label">Талант</p>
+            <p class="hud-h3 text-shd-orange" x-text="selected.talent?.name"></p>
+            <p class="text-sm text-shd-muted leading-relaxed" x-text="selected.talent?.text"></p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <p class="hud-label">Где выбить</p>
+          <ul class="space-y-2">
+            <template x-for="(src, i) in selected.farm" :key="i">
+              <li class="flex gap-3 items-start">
+                <span class="font-mono text-shd-orange text-sm shrink-0" x-text="'[' + String(i+1).padStart(2,'0') + ']'"></span>
+                <span class="text-shd-text leading-snug" x-text="src"></span>
+              </li>
+            </template>
+          </ul>
+        </div>
+
+        <div class="border-t border-white/5 pt-4 space-y-1" x-show="selected.tip">
+          <p class="hud-label">Совет по калибровке</p>
+          <p class="text-sm text-shd-muted leading-relaxed" x-text="selected.tip"></p>
+        </div>
+      </div>
+    </template>
+  </div>
+</div>
+
+<script>
+function buildPage() {
+  return {
+    build: SHD_BUILDS.find(b => b.key === new URLSearchParams(location.search).get('id')) || SHD_BUILDS[0],
+    get others() { return SHD_BUILDS.filter(b => b !== this.build); },
+    roles: ['DPS', 'Tank', 'Healer', 'Skill Build'],
+    selected: null,
+    activeMode: 'heroic',
+    sim: { stacks: 120, chest: true, backpack: true },
+
+    get skillLabel() { return ['','Для новичков','Простой','Нужен опыт','Нужна точность','Для опытных'][this.build.skillFloor]; },
+    get difficultyLabel() { return ['','Легко','Просто','Средне','Сложно','Эндгейм-фарм'][this.build.difficulty]; },
+    get maxStacks() { return this.sim.chest ? 200 : 100; },
+    get effectiveStacks() { return Math.min(this.sim.stacks, this.maxStacks); },
+    get perStack() { return this.sim.backpack ? 1 : 0.65; },
+    get gambleBonus() { return +(this.effectiveStacks * this.perStack).toFixed(1); },
+
+    coreColor(t) { return { red:'bg-shd-offense', blue:'bg-shd-defense', yellow:'bg-shd-skill' }[t] || 'bg-shd-offense'; },
+    open(item) { this.selected = item; },
+    close() { this.selected = null; },
+  };
+}
+</script>
+</body>
+</html>

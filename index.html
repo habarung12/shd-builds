@@ -12,6 +12,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="assets/shd.js"></script>
+<script src="assets/builds.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 
@@ -22,7 +23,7 @@
 
   <!-- ============ ЛЕВАЯ КОЛОНКА: главное меню (как экран «Home» в игре) ============ -->
   <section class="space-y-2" aria-label="Главное меню">
-    <a href="build-striker.html" class="menu-btn is-primary">Продолжить</a>
+    <a href="builds.html" class="menu-btn is-primary">Продолжить</a>
 
     <!-- Новости -->
     <div class="frame glass">
@@ -31,12 +32,12 @@
         <!-- «обложка» новости: абстрактная графика вместо арта игры -->
         <div class="absolute inset-0 opacity-70" aria-hidden="true"
              :style="`background: radial-gradient(70% 60% at 70% 30%, ${news[slide].tint}, transparent 70%)`"></div>
-        <svg class="absolute right-4 top-4 w-28 h-28 text-white/15" viewBox="0 0 24 24" aria-hidden="true" x-html="news[slide].icon"></svg>
+        <svg class="absolute right-4 top-4 w-28 h-28 text-shd-text/15" viewBox="0 0 24 24" aria-hidden="true" x-html="news[slide].icon"></svg>
 
         <template x-for="(n, i) in news" :key="i">
           <a x-show="slide === i" x-transition.opacity.duration.300ms :href="n.href" class="relative block space-y-1 group">
             <p class="text-shd-orange font-semibold" x-text="n.title"></p>
-            <p class="text-sm text-white/85 leading-snug group-hover:text-white" x-text="n.text"></p>
+            <p class="text-sm text-shd-text/85 leading-snug group-hover:text-shd-text" x-text="n.text"></p>
           </a>
         </template>
         <div class="relative flex gap-1.5 pt-3" role="tablist" aria-label="Новости">
@@ -52,7 +53,7 @@
     <a href="ui-kit.html" class="menu-btn">UI Kit</a>
 
     <!-- подсказки клавиш -->
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm text-white/85">
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm text-shd-text/85">
       <span class="flex items-center gap-2"><span class="keycap">↵</span>Выбрать</span>
       <span class="flex items-center gap-2"><span class="keycap is-accent">A</span><span class="keycap is-accent">E</span>Вкладки</span>
     </div>
@@ -67,9 +68,9 @@
       <aside class="frame glass flex flex-col">
         <div class="p-4 border-b border-white/15">
           <p class="text-2xl">Раздел</p>
-          <p class="text-sm text-white/85 mt-1" x-text="active.title"></p>
+          <p class="text-sm text-shd-text/85 mt-1" x-text="active.title"></p>
         </div>
-        <p class="p-4 text-sm text-white/85 leading-relaxed flex-1" x-text="active.text"></p>
+        <p class="p-4 text-sm text-shd-text/85 leading-relaxed flex-1" x-text="active.text"></p>
         <div class="border-t border-white/15">
           <template x-for="s in stats" :key="s.label">
             <div class="flex items-center justify-between px-4 py-2 border-b border-white/10 last:border-0 text-sm">
@@ -97,7 +98,7 @@
   </section>
 </main>
 
-<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-white/60">
+<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-shd-text/60">
   SHD Builds · фанатский проект, не связан с Ubisoft · данные демонстрационные, сверяйте с актуальным патчем
 </footer>
 
@@ -114,12 +115,13 @@ function home() {
   return {
     slide: 0, timer: null, hover: 'builds',
     news: [
-      { title:'Striker DPS', text:'Новый разбор: 4× Striker\'s Battlegear, Coyote\'s Mask и Česká Výroba. Как разогнать стаки до 200.', href:'build-striker.html', tint:'rgba(247,148,30,.45)', icon:'<path fill="currentColor" d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>' },
+      { title:'7 новых билдов', text:'Heartbreaker, Hunter's Fury, снайпер на Headhunter, танк, хилер и билд на навыки — выбирайте роль.', href:'builds.html', tint:'rgba(232,72,59,.35)', icon:'<path fill="currentColor" d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>' },
+      { title:'Striker DPS', text:'Новый разбор: 4× Striker\'s Battlegear, Coyote\'s Mask и Česká Výroba. Как разогнать стаки до 200.', href:'build.html?id=striker', tint:'rgba(247,148,30,.45)', icon:'<path fill="currentColor" d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>' },
       { title:'База снаряжения', text:'10 комплектов и 13 брендов с фильтрами по типу бонуса и месту фарма.', href:'gear.html', tint:'rgba(41,209,124,.35)', icon:'<path fill="currentColor" d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/>' },
       { title:'Настройки интерфейса', text:'Настройте затемнение панелей и размытие фона — как в меню игры.', href:'settings.html', tint:'rgba(90,130,255,.35)', icon:'<circle cx="12" cy="12" r="8" fill="currentColor"/>' },
     ],
     tiles: [
-      { id:'builds', title:'Билды',        sub:'Striker DPS',          href:'build-striker.html', icon:IC.build, text:'Разбор билдов: что собрать, где выбить каждую вещь, в каких режимах играть и почему билд работает.' },
+      { id:'builds', title:'Билды',        sub:'7 билдов',             href:'builds.html', icon:IC.build, text:'Разбор билдов: что собрать, где выбить каждую вещь, в каких режимах играть и почему билд работает.' },
       { id:'db',     title:'База данных',  sub:'Бренды и комплекты',   href:'gear.html',          icon:IC.data,  text:'Все бренды и зелёные комплекты с бонусами и местами фарма: Целевой трофей, Саммит, Обратный отсчёт.' },
       { id:'set',    title:'Настройки',    sub:'Характеристики',       href:'settings.html',      icon:IC.gear,  text:'Подбор активности, целевые характеристики билда и параметры интерфейса сайта.' },
       { id:'kit',    title:'UI Kit',       sub:'Дизайн-система',       href:'ui-kit.html',        icon:IC.kit,   text:'Компоненты интерфейса: палитра, карточки снаряжения, кнопки и типографика.' },
@@ -127,7 +129,7 @@ function home() {
       { id:'raid',   title:'Рейды',        sub:'',  soon:true,  icon:IC.raid, text:'Роли и билды для рейдов — раздел в разработке.' },
     ],
     stats: [
-      { label:'Билдов', value:'01', on:true },
+      { label:'Билдов', value:String(SHD_BUILDS.length).padStart(2,'0'), on:true },
       { label:'Комплектов', value:'10', on:true },
       { label:'Брендов', value:'13', on:true },
     ],
