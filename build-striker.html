@@ -7,7 +7,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="assets/shd.js"></script>
@@ -15,18 +15,18 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 
-<body class="scanlines" x-data="buildPage()" @keydown.escape.window="close()">
+<body x-data="buildPage()" @keydown.escape.window="close()">
 <div id="shd-nav"></div>
 <main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-14">
 
   <!-- ============ 1. СВОДКА — ЧТО ЭТО? ============ -->
-  <section class="panel panel-brackets grid gap-8 lg:grid-cols-[1fr_auto]">
+  <section class="panel grid gap-8 lg:grid-cols-[1fr_auto]">
     <div class="space-y-4">
       <div class="flex flex-wrap items-center gap-3">
         <span class="q-tag">ЧТО?</span>
         <p class="hud-label">ISAC // Архив билдов // ID <span x-text="build.id"></span></p>
       </div>
-      <h1 class="hud-h1 glitch" :data-text="build.name" x-text="build.name"></h1>
+      <h1 class="hud-h1" :data-text="build.name" x-text="build.name"></h1>
       <p class="max-w-2xl text-shd-muted text-lg leading-snug" x-text="build.summary"></p>
       <div class="flex flex-wrap gap-2">
         <template x-for="r in roles" :key="r">
@@ -164,13 +164,13 @@
       </div>
 
       <!-- Тайминги -->
-      <div class="panel panel-brackets">
+      <div class="panel">
         <p class="hud-label mb-4">Идеальные тайминги</p>
         <ol class="relative space-y-5 border-l border-shd-orange/30 pl-6">
           <template x-for="(t, i) in build.timings" :key="i">
             <li class="relative">
               <span class="absolute -left-[31px] top-1 w-3 h-3 rotate-45 bg-shd-bg border border-shd-orange" :class="i === 1 && 'bg-shd-orange shadow-glow'"></span>
-              <p class="font-mono text-xs text-shd-orange tracking-widest" x-text="t.phase"></p>
+              <p class="font-mono text-xs text-shd-orange" x-text="t.phase"></p>
               <p class="hud-h3 mt-0.5" x-text="t.title"></p>
               <p class="text-shd-muted leading-snug mt-1" x-text="t.text"></p>
             </li>
@@ -201,7 +201,7 @@
       </div>
 
       <!-- Симулятор стаков -->
-      <div class="panel panel-brackets space-y-5">
+      <div class="panel space-y-5">
         <p class="hud-label">Симулятор Striker's Gamble</p>
         <div>
           <div class="flex justify-between items-end mb-2">
@@ -234,7 +234,7 @@
 
 <!-- ============ МОДАЛЬНОЕ ОКНО ПРЕДМЕТА ============ -->
 <div x-cloak x-show="selected" x-transition.opacity class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/75 backdrop-blur-sm" @click.self="close()">
-  <div x-show="selected" x-transition class="panel panel-brackets w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto overflow-x-hidden !bg-shd-solid/95"
+  <div x-show="selected" x-transition class="panel w-full sm:max-w-2xl max-h-[92vh] overflow-y-auto overflow-x-hidden !bg-shd-solid/95"
        :class="selected && 'rarity-' + selected.rarity" role="dialog" aria-modal="true" :aria-label="selected?.name" x-trap.noscroll="selected">
     <template x-if="selected">
       <div class="space-y-6">

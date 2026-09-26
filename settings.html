@@ -7,110 +7,103 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="assets/shd.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 
-<body class="scanlines" x-data="settingsPage()" x-init="init()" @keydown.window="hotkeys($event)">
+<body x-data="settingsPage()" x-init="init()" @keydown.window="hotkeys($event)">
 <div id="shd-nav"></div>
 
-<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-12">
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 space-y-10">
 
-  <!-- ============ ЗАГОЛОВОК ============ -->
-  <header class="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-    <div class="space-y-2">
-      <p class="hud-label">ISAC // Конфигуратор агента</p>
-      <h1 class="hud-h1">Настройки</h1>
-      <p class="text-shd-muted max-w-2xl">Выберите активность, задайте целевые характеристики билда и параметры интерфейса сайта.</p>
-    </div>
-    <div class="flex items-center gap-3 font-mono text-xs text-shd-muted">
-      <span class="keycap">A</span><span class="keycap">E</span><span>— переключение вкладок</span>
-    </div>
-  </header>
+  <!-- ============ 1. ПОДБОР АКТИВНОСТИ (как «Matchmaking Station») ============ -->
+  <section class="space-y-3" aria-labelledby="mm-title">
+    <h1 id="mm-title" class="panel-title">Станция подбора</h1>
 
-  <!-- ============ 1. СЕТКА ПЛИТОК (Matchmaking) ============ -->
-  <section class="space-y-5" aria-labelledby="mm-title">
-    <div class="flex flex-wrap items-end justify-between gap-3">
-      <h2 id="mm-title" class="hud-h2 hud-section flex-1"><span class="hud-prefix">Подбор активности</span></h2>
-      <p class="font-mono text-xs text-shd-muted">Выбрано: <span class="text-shd-orange" x-text="activity.title"></span></p>
-    </div>
-
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" role="group" aria-label="Активность">
-      <template x-for="(t, i) in tiles" :key="t.id">
-        <button type="button" class="tile-select" :class="i === 0 && 'col-span-2 lg:row-span-2 lg:min-h-[316px]'"
-                :aria-pressed="selected === t.id" @click="selected = t.id">
-          <div class="flex items-start justify-between gap-3">
-            <svg class="ico" :class="i === 0 && 'lg:!w-14 lg:!h-14'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" x-html="t.icon"></svg>
-            <span class="font-mono text-[10px] tracking-widest opacity-70" x-text="String(i+1).padStart(2,'0')"></span>
-          </div>
-          <div class="space-y-1">
-            <p class="t-title" :class="i === 0 && 'lg:!text-3xl'" x-text="t.title"></p>
-            <p class="t-sub" x-text="t.sub"></p>
-            <p x-show="i === 0" class="hidden lg:block text-sm leading-snug pt-2 opacity-80" x-text="t.text"></p>
-          </div>
-        </button>
-      </template>
-    </div>
-  </section>
-
-  <!-- ============ 2. МЕНЮ НАСТРОЕК (Sidebar + Content) ============ -->
-  <section class="space-y-5" aria-labelledby="set-title">
-    <h2 id="set-title" class="hud-h2 hud-section"><span class="hud-prefix">Характеристики билда</span></h2>
-
-    <div class="panel !p-0 grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)]">
-      <!-- Категории -->
-      <aside class="min-w-0 border-b lg:border-b-0 lg:border-r border-white/10">
-        <p class="hud-label px-5 py-3 border-b border-white/10 hidden lg:block">Категории</p>
-        <div class="flex lg:flex-col overflow-x-auto no-scrollbar" role="tablist" aria-label="Категории настроек">
-          <template x-for="c in categories" :key="c.id">
-            <button type="button" role="tab" class="cat-item shrink-0 !w-auto lg:!w-full" :aria-selected="cat === c.id" @click="cat = c.id">
-              <span class="flex items-center gap-2.5">
-                <i class="w-2 h-2 rotate-45 shrink-0" :style="`background:${c.color}`"></i>
-                <span x-text="c.label"></span>
-              </span>
-              <span class="font-mono text-[10px] text-shd-muted hidden lg:inline" x-text="c.rows.length"></span>
-            </button>
+    <div class="grid gap-3 md:grid-cols-[260px_minmax(0,1fr)]">
+      <!-- Инфо + отряд -->
+      <aside class="frame glass flex flex-col">
+        <div class="p-4 border-b border-white/15">
+          <p class="text-2xl">Подбор для</p>
+          <p class="text-sm text-white/85 mt-1" x-text="activity.title"></p>
+        </div>
+        <p class="p-4 text-sm text-white/85 leading-relaxed flex-1" x-text="activity.text"></p>
+        <div class="border-t border-white/15">
+          <template x-for="(p, i) in squad" :key="i">
+            <div class="flex items-center gap-3 px-4 h-9 border-b border-white/10 last:border-0 text-sm">
+              <i class="w-0.5 h-4" :class="p ? 'bg-shd-gearset' : 'bg-white/15'"></i>
+              <span class="w-5 tabular-nums text-white/70" x-text="String(i+1).padStart(2,'0')"></span>
+              <span x-show="p" x-text="p"></span>
+              <span x-show="!p" class="flex-1 text-center text-white/40 text-lg leading-none">×</span>
+            </div>
           </template>
         </div>
       </aside>
 
-      <!-- Строки со слайдерами -->
-      <div role="tabpanel" class="min-w-0">
-        <template x-for="c in categories" :key="c.id">
-          <div x-show="cat === c.id">
-            <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-white/10 bg-black/20">
-              <p class="hud-h3" x-text="c.label"></p>
-              <p class="font-mono text-xs text-shd-muted" x-text="c.hint"></p>
-            </div>
+      <!-- Плитки -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" role="group" aria-label="Активность">
+        <template x-for="t in tiles" :key="t.id">
+          <button type="button" class="tile-select min-h-[150px] sm:min-h-[170px]" :aria-pressed="selected === t.id" @click="selected = t.id">
+            <p class="t-title" x-text="t.title"></p>
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" x-html="t.icon"></svg>
+            <p class="t-sub" x-text="t.sub"></p>
+          </button>
+        </template>
+      </div>
+    </div>
+  </section>
 
+  <!-- ============ 2. НАСТРОЙКИ (как меню «Settings» в игре) ============ -->
+  <section class="space-y-3" aria-labelledby="set-title">
+    <h2 id="set-title" class="panel-title">Настройки</h2>
+
+    <div class="grid gap-3 lg:grid-cols-[240px_minmax(0,1fr)] items-start">
+      <!-- Категории: каждая — отдельная панель, активная залита оранжевым -->
+      <div class="flex lg:flex-col gap-1 overflow-x-auto no-scrollbar" role="tablist" aria-label="Категории настроек">
+        <template x-for="c in categories" :key="c.id">
+          <button type="button" role="tab" class="cat-item shrink-0 !w-auto lg:!w-full whitespace-nowrap"
+                  :aria-selected="cat === c.id" @click="cat = c.id" x-text="c.label"></button>
+        </template>
+      </div>
+
+      <!-- Строки -->
+      <div role="tabpanel" class="space-y-1.5 min-w-0">
+        <template x-for="c in categories" :key="c.id">
+          <div x-show="cat === c.id" class="space-y-1.5">
             <template x-for="r in c.rows" :key="r.id">
               <div class="set-row">
                 <div class="min-w-0">
-                  <p class="font-hud font-semibold text-[15px] tracking-wide" x-text="r.label"></p>
-                  <p class="font-mono text-[11px] text-shd-muted truncate" x-text="r.desc"></p>
+                  <p class="r-title" x-text="r.label"></p>
+                  <p class="r-desc" x-text="r.desc"></p>
                 </div>
 
-                <!-- Переключатель вкл/выкл -->
+                <!-- Вкл / Выкл -->
                 <template x-if="r.type === 'switch'">
-                  <div class="flex items-center justify-end gap-3">
-                    <span class="font-mono text-xs text-shd-muted" x-text="val(c, r) ? 'ВКЛ' : 'ВЫКЛ'"></span>
-                    <button type="button" role="switch" class="switch" :aria-checked="!!val(c, r)" :aria-label="r.label"
-                            @click="set(c, r, !val(c, r))"></button>
+                  <div class="flex items-center justify-between sm:justify-end gap-3 self-center">
+                    <button type="button" class="arrow" :aria-label="r.label + ': включить'" @click="set(c, r, true)">‹</button>
+                    <button type="button" role="switch" :aria-checked="!!val(r)" class="w-28 text-center" @click="set(c, r, !val(r))">
+                      <span class="opt" :class="val(r) && 'on'">Вкл</span>
+                      <span class="text-white/60 mx-1">/</span>
+                      <span class="opt" :class="!val(r) && 'on'">Выкл</span>
+                    </button>
+                    <button type="button" class="arrow" :aria-label="r.label + ': выключить'" @click="set(c, r, false)">›</button>
                   </div>
                 </template>
 
-                <!-- Слайдер: ◀ [====|----] ▶ значение -->
+                <!-- ‹ 030 › + полоса -->
                 <template x-if="r.type !== 'switch'">
-                  <div class="flex items-center gap-2 sm:gap-3">
-                    <button type="button" class="step-btn" :aria-label="'Уменьшить: ' + r.label" @click="nudge(c, r, -1)">◀</button>
-                    <input type="range" class="hud-range flex-1 min-w-0" :min="r.min" :max="r.max" :step="r.step"
-                           :aria-label="r.label" :value="val(c, r)" :style="`--p:${pct(c, r)}%`"
+                  <div class="flex flex-col items-stretch self-end">
+                    <div class="flex items-center justify-between">
+                      <button type="button" class="arrow" :disabled="val(r) <= r.min" :aria-label="'Уменьшить: ' + r.label" @click="nudge(c, r, -1)">‹</button>
+                      <span class="val"><span x-text="pad(r)"></span><span class="text-xs text-white/50 ml-1" x-text="r.unit"></span></span>
+                      <button type="button" class="arrow" :disabled="val(r) >= r.max" :aria-label="'Увеличить: ' + r.label" @click="nudge(c, r, 1)">›</button>
+                    </div>
+                    <input type="range" class="hud-range w-[70%] self-center" :min="r.min" :max="r.max" :step="r.step"
+                           :aria-label="r.label" :value="val(r)" :style="`--p:${pct(r)}%`"
                            @input="set(c, r, +$event.target.value)">
-                    <button type="button" class="step-btn" :aria-label="'Увеличить: ' + r.label" @click="nudge(c, r, 1)">▶</button>
-                    <span class="val-box" :class="val(c, r) >= r.max && '!text-shd-orange'" x-text="fmt(c, r)"></span>
                   </div>
                 </template>
               </div>
@@ -118,104 +111,104 @@
           </div>
         </template>
 
-        <!-- Нижняя панель действий (как в игре: клавиши-подсказки) -->
-        <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-black/30">
-          <p class="font-mono text-[11px] text-shd-muted" x-text="status"></p>
-          <div class="flex flex-wrap items-center gap-4 font-mono text-xs">
-            <button type="button" class="flex items-center gap-2 text-shd-muted hover:text-shd-text transition" @click="resetCat()">
-              <span class="keycap">R</span>Сбросить раздел
-            </button>
-            <button type="button" class="flex items-center gap-2 text-shd-text hover:text-shd-orange transition" @click="save()">
-              <span class="keycap !border-shd-orange !text-shd-orange">↵</span>Применить
-            </button>
+        <!-- Подсказки клавиш -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-sm">
+          <p class="text-white/60" x-text="status"></p>
+          <div class="flex flex-wrap items-center gap-5">
+            <button type="button" class="flex items-center gap-2 text-white/85 hover:text-white" @click="resetCat()"><span class="keycap">R</span>Сбросить раздел</button>
+            <button type="button" class="flex items-center gap-2 text-white/85 hover:text-white" @click="save()"><span class="keycap is-accent">↵</span>Применить</button>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ 3. ПРОФИЛЬ БИЛДА (итог по ядрам) ============ -->
-  <section class="grid gap-4 md:grid-cols-3">
-    <template x-for="s in summary" :key="s.id">
-      <div class="panel hud-corners space-y-3">
-        <div class="flex items-center justify-between">
-          <p class="flex items-center gap-2 hud-label"><i class="w-2 h-2 rotate-45" :style="`background:${s.color}`"></i><span x-text="s.label"></span></p>
-          <p class="hud-data text-2xl" x-text="s.score + '%'"></p>
+  <!-- ============ 3. ПРОФИЛЬ БИЛДА ============ -->
+  <section class="space-y-3">
+    <h2 class="panel-title">Профиль билда</h2>
+    <div class="grid gap-1.5 md:grid-cols-3">
+      <template x-for="s in summary" :key="s.id">
+        <div class="panel !p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <p class="flex items-center gap-2 text-sm"><i class="w-1.5 h-1.5 rotate-45" :style="`background:${s.color}`"></i><span x-text="s.label"></span></p>
+            <p class="text-xl tabular-nums" x-text="String(s.score).padStart(3,'0')"></p>
+          </div>
+          <div class="stat-bar"><span :style="`width:${s.score}%; background:${s.color}`"></span></div>
+          <p class="text-sm text-white/70 leading-snug" x-text="s.note"></p>
         </div>
-        <div class="stat-bar h-1.5"><span :style="`width:${s.score}%; background:${s.color}; box-shadow:0 0 8px ${s.color}`"></span></div>
-        <p class="text-sm text-shd-muted leading-snug" x-text="s.note"></p>
-      </div>
-    </template>
+      </template>
+    </div>
   </section>
-
-  <footer class="border-t border-white/10 pt-6 flex flex-wrap justify-between gap-4 hud-label">
-    <span>SHD Builds · Фанатский проект, не связан с Ubisoft</span>
-    <span>Настройки хранятся только в этом браузере</span>
-  </footer>
 </main>
 
+<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-white/60">
+  SHD Builds · фанатский проект, не связан с Ubisoft · настройки хранятся только в этом браузере
+</footer>
+
 <script>
-/* ===== Иконки плиток (SVG-пути, stroke) ===== */
+/* ===== Иконки плиток ===== */
 const ICONS = {
-  target: '<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/>',
-  map:    '<path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',
-  raid:   '<path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/><path d="M8 12l3 3 5-6"/>',
-  dz:     '<path d="M12 2l10 18H2z"/><path d="M12 9v5M12 17v.5"/>',
-  summit: '<path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6M4 13h16"/>',
-  timer:  '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
-  skull:  '<path d="M5 11a7 7 0 1114 0v4h-3v4H8v-4H5z"/><circle cx="9" cy="11" r="1.5"/><circle cx="15" cy="11" r="1.5"/>',
-  users:  '<circle cx="9" cy="8" r="3.5"/><path d="M2 21c0-4 3-6.5 7-6.5s7 2.5 7 6.5"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.8c2.4.7 4 2.8 4 6.2"/>',
+  random: '<path d="M9 9a3 3 0 116 0c0 2-3 2.5-3 5M12 17.5v.5"/>',
+  mission:'<path d="M12 2.5l8 4.6v9.8l-8 4.6-8-4.6V7.1z"/><path d="M12 8l4 2.3v4.6L12 17l-4-2.1v-4.6z"/>',
+  bounty: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5l4.5 4.5-4.5 4.5L7.5 12z"/>',
+  world:  '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/>',
+  dz:     '<circle cx="12" cy="12" r="2"/><path d="M12 10V4a6 6 0 016 3.5M13.7 13l5.2 3a6 6 0 01-6.9 4M10.3 13l-5.2 3A6 6 0 016 7.5"/>',
+  call:   '<path d="M12 5v9M12 18v1"/><path d="M4 8l2 1M20 8l-2 1M3 14h2M21 14h-2M6 19l1.5-1M18 19l-1.5-1"/>',
+  raid:   '<path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>',
+  summit: '<path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-6h6v6"/>',
+  count:  '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
 };
 
-/* ===== Характеристики: id, подпись, диапазон, шаг, единица ===== */
+/* ===== Характеристики ===== */
 const CATEGORIES = [
-  { id:'offense', label:'Нападение', color:'#e8483b', hint:'Красные атрибуты · потолок крита 60%', rows:[
+  { id:'offense', label:'Нападение', rows:[
     { id:'chc', label:'Шанс крит. попадания', desc:'Выше 60% не работает', min:0, max:60,  step:1, unit:'%', def:50 },
     { id:'chd', label:'Урон крит. попадания', desc:'Главный множитель DPS', min:0, max:200, step:1, unit:'%', def:120 },
     { id:'hsd', label:'Урон в голову',        desc:'Для точных стволов',    min:0, max:150, step:1, unit:'%', def:40 },
-    { id:'wd',  label:'Урон оружия',          desc:'Ядра + бренды',          min:0, max:120, step:5, unit:'%', def:90 },
+    { id:'wd',  label:'Урон оружия',          desc:'Ядра и бренды',          min:0, max:120, step:5, unit:'%', def:90 },
   ]},
-  { id:'defense', label:'Защита', color:'#3b8fe8', hint:'Синие атрибуты', rows:[
-    { id:'armor', label:'Общая броня',        desc:'Бонус к броне от брендов', min:0, max:50, step:1, unit:'%', def:10 },
-    { id:'regen', label:'Регенерация брони',  desc:'В секунду',                min:0, max:5,  step:0.1, unit:'%/с', def:0 },
-    { id:'haz',   label:'Защита от угроз',    desc:'Горение, кровотечение…',   min:0, max:60, step:1, unit:'%', def:20 },
-    { id:'hp',    label:'Здоровье',           desc:'Бонус к здоровью',         min:0, max:120, step:5, unit:'%', def:90 },
+  { id:'defense', label:'Защита', rows:[
+    { id:'armor', label:'Общая броня',       desc:'Бонус от брендов',       min:0, max:50,  step:1, unit:'%', def:10 },
+    { id:'regen', label:'Регенерация брони', desc:'Процентов в секунду',    min:0, max:5,   step:0.1, unit:'%/с', def:0 },
+    { id:'haz',   label:'Защита от угроз',   desc:'Горение, кровотечение',  min:0, max:60,  step:1, unit:'%', def:20 },
+    { id:'hp',    label:'Здоровье',          desc:'Бонус к здоровью',       min:0, max:120, step:5, unit:'%', def:90 },
   ]},
-  { id:'skill', label:'Навыки', color:'#f2c230', hint:'Жёлтые атрибуты · 6 уровней', rows:[
-    { id:'tier',  label:'Уровень навыков',    desc:'Жёлтые ядра',              min:0, max:6,   step:1, unit:'', def:0 },
-    { id:'haste', label:'Ускорение навыков',  desc:'Сокращение перезарядки',   min:0, max:100, step:1, unit:'%', def:0 },
-    { id:'sdmg',  label:'Урон навыков',       desc:'Турели, дроны, пчёлы',     min:0, max:100, step:1, unit:'%', def:0 },
-    { id:'rep',   label:'Ремонт навыками',    desc:'Хил брони союзников',      min:0, max:150, step:5, unit:'%', def:0 },
+  { id:'skill', label:'Навыки', rows:[
+    { id:'tier',  label:'Уровень навыков',   desc:'Жёлтые ядра',            min:0, max:6,   step:1, unit:'', def:0 },
+    { id:'haste', label:'Ускорение навыков', desc:'Сокращение перезарядки', min:0, max:100, step:1, unit:'%', def:0 },
+    { id:'sdmg',  label:'Урон навыков',      desc:'Турели, дроны, пчёлы',   min:0, max:100, step:1, unit:'%', def:0 },
+    { id:'rep',   label:'Ремонт навыками',   desc:'Хил брони союзников',    min:0, max:150, step:5, unit:'%', def:0 },
   ]},
-  { id:'weapon', label:'Оружие', color:'#ff6a00', hint:'Моды и атрибуты стволов', rows:[
-    { id:'rof',  label:'Скорострельность',      desc:'Быстрее набор стаков', min:0, max:50,  step:1, unit:'%', def:15 },
-    { id:'wh',   label:'Обращение с оружием',   desc:'Точность, смена, наводка', min:0, max:100, step:1, unit:'%', def:15 },
-    { id:'stab', label:'Стабильность',          desc:'Отдача',               min:0, max:100, step:1, unit:'%', def:30 },
-    { id:'rld',  label:'Скорость перезарядки',  desc:'',                     min:0, max:100, step:1, unit:'%', def:10 },
+  { id:'weapon', label:'Оружие', rows:[
+    { id:'rof',  label:'Скорострельность',     desc:'Быстрее набор стаков',      min:0, max:50,  step:1, unit:'%', def:15 },
+    { id:'wh',   label:'Обращение с оружием',  desc:'Точность, смена, наводка',  min:0, max:100, step:1, unit:'%', def:15 },
+    { id:'stab', label:'Стабильность',         desc:'Отдача',                    min:0, max:100, step:1, unit:'%', def:30 },
+    { id:'rld',  label:'Скорость перезарядки', desc:'Время перезарядки',         min:0, max:100, step:1, unit:'%', def:10 },
   ]},
-  // Эта категория реально меняет внешний вид всего сайта
-  { id:'ui', label:'Интерфейс', color:'#e2e8f0', hint:'Применяется ко всем страницам сайта', ui:true, rows:[
-    { id:'glass',  label:'Затемнение панелей',  desc:'Прозрачность «стекла»',   min:10, max:90, step:1, unit:'%' },
-    { id:'blur',   label:'Размытие фона',       desc:'backdrop-blur',           min:0,  max:30, step:1, unit:'px' },
-    { id:'scan',   label:'Линии сканирования',  desc:'Интенсивность эффекта',   min:0,  max:100, step:5, unit:'%' },
-    { id:'motion', label:'Анимация фона',       desc:'Дрейф света и частиц',    type:'switch' },
+  // Эта категория меняет вид всего сайта
+  { id:'ui', label:'Интерфейс', ui:true, rows:[
+    { id:'glass',  label:'Затемнение панелей', desc:'Плотность «стекла»',             min:10, max:90, step:1, unit:'%' },
+    { id:'blur',   label:'Размытие фона',      desc:'Сила размытия сцены за панелями', min:0,  max:30, step:1, unit:'px' },
+    { id:'motion', label:'Анимация фона',      desc:'Плавный дрейф света',             type:'switch' },
   ]},
 ];
 
 function settingsPage() {
   return {
     tiles: [
-      { id:'quick',   icon:ICONS.target, title:'Быстрая игра',     sub:'Подбор отряда · 4 агента', text:'Случайная миссия или активность открытого мира с автоматическим подбором группы.' },
-      { id:'story',   icon:ICONS.map,    title:'Миссии',           sub:'Героизм / Легендарка' },
-      { id:'raid',    icon:ICONS.raid,   title:'Рейды',            sub:'8 агентов' },
-      { id:'dz',      icon:ICONS.dz,     title:'Тёмная зона',      sub:'PvPvE' },
-      { id:'summit',  icon:ICONS.summit, title:'Саммит',           sub:'100 этажей' },
-      { id:'count',   icon:ICONS.timer,  title:'Обратный отсчёт',  sub:'8 агентов · 15 мин' },
-      { id:'legend',  icon:ICONS.skull,  title:'Легендарка',       sub:'Максимальная сложность' },
-      { id:'pvp',     icon:ICONS.users,  title:'Конфликт',         sub:'PvP 4 на 4' },
+      { id:'random',  icon:ICONS.random,  title:'Случайная активность', sub:'Любой режим',        text:'Найти других агентов для случайной активности.' },
+      { id:'mission', icon:ICONS.mission, title:'Случайная миссия',     sub:'Основные миссии',    text:'Случайная основная миссия с подбором группы.' },
+      { id:'bounty',  icon:ICONS.bounty,  title:'Случайная награда',    sub:'Охота за головами',  text:'Выследить и устранить цель награды вместе с отрядом.' },
+      { id:'world',   icon:ICONS.world,   title:'Открытый мир',         sub:'Исследование',       text:'Свободное исследование: контрольные точки, события и тайники.' },
+      { id:'dz',      icon:ICONS.dz,      title:'Тёмная зона',          sub:'PvPvE',              text:'Зона повышенной опасности: лут, эвакуации и другие агенты.' },
+      { id:'call',    icon:ICONS.call,    title:'Ответить на зов',      sub:'Помощь агентам',     text:'Присоединиться к агенту, который запросил подкрепление.' },
+      { id:'raid',    icon:ICONS.raid,    title:'Рейды',                sub:'8 агентов',          text:'Командная операция для восьми агентов с механиками боссов.' },
+      { id:'summit',  icon:ICONS.summit,  title:'Саммит',               sub:'100 этажей',         text:'Восхождение по этажам небоскрёба с растущей сложностью.' },
+      { id:'count',   icon:ICONS.count,   title:'Обратный отсчёт',      sub:'8 агентов · 15 мин', text:'Удержание точек и эвакуация до истечения таймера.' },
     ],
+    squad: ['Агент', null, null, null],
     categories: CATEGORIES,
-    selected: 'quick',
+    selected: 'random',
     cat: 'offense',
     values: {},
     status: 'Изменения не сохранены',
@@ -223,54 +216,52 @@ function settingsPage() {
     get activity() { return this.tiles.find(t => t.id === this.selected); },
 
     init() {
-      // значения по умолчанию + сохранённые
       let saved = {};
       try { saved = JSON.parse(localStorage.getItem('shd-build-prefs') || '{}'); } catch (e) {}
       const ui = SHD_UI.load();
       CATEGORIES.forEach(c => c.rows.forEach(r => {
         this.values[r.id] = c.ui ? ui[r.id] : (saved.values?.[r.id] ?? r.def);
       }));
-      if (saved.selected) this.selected = saved.selected;
+      if (saved.selected && this.tiles.some(t => t.id === saved.selected)) this.selected = saved.selected;
       if (saved.values) this.status = 'Загружен сохранённый профиль';
     },
 
-    val(c, r) { return this.values[r.id]; },
-    pct(c, r) { return ((this.values[r.id] - r.min) / (r.max - r.min)) * 100; },
-    fmt(c, r) { const v = this.values[r.id]; return (r.step < 1 ? v.toFixed(1) : v) + r.unit; },
+    val(r) { return this.values[r.id]; },
+    pct(r) { return ((this.values[r.id] - r.min) / (r.max - r.min)) * 100; },
+    // «030», как в меню игры; дробные — «2.5»
+    pad(r) { const v = this.values[r.id]; return r.step < 1 ? v.toFixed(1) : String(v).padStart(3, '0'); },
     set(c, r, v) {
       if (r.type !== 'switch') v = Math.min(r.max, Math.max(r.min, +(+v).toFixed(2)));
       this.values[r.id] = v;
       this.status = 'Есть несохранённые изменения';
-      if (c.ui) this.applyUi(true);
+      if (c.ui) this.applyUi();
     },
     nudge(c, r, dir) { this.set(c, r, this.values[r.id] + dir * r.step); },
 
-    applyUi(persist) {
-      const v = { glass: this.values.glass, blur: this.values.blur, scan: this.values.scan, motion: this.values.motion };
-      SHD_UI.apply(v);
-      if (persist) SHD_UI.save(v);
+    applyUi() {
+      const v = { glass: this.values.glass, blur: this.values.blur, motion: this.values.motion };
+      SHD_UI.apply(v); SHD_UI.save(v);
     },
     resetCat() {
       const c = CATEGORIES.find(x => x.id === this.cat);
       c.rows.forEach(r => { this.values[r.id] = c.ui ? SHD_UI_DEFAULTS[r.id] : r.def; });
-      if (c.ui) this.applyUi(true);
+      if (c.ui) this.applyUi();
       this.status = `Раздел «${c.label}» сброшен`;
     },
     save() {
       const values = {};
       CATEGORIES.filter(c => !c.ui).forEach(c => c.rows.forEach(r => values[r.id] = this.values[r.id]));
       try { localStorage.setItem('shd-build-prefs', JSON.stringify({ selected: this.selected, values })); } catch (e) {}
-      this.applyUi(true);
+      this.applyUi();
       this.status = 'Профиль сохранён · ' + new Date().toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
     },
     hotkeys(e) {
       if (e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input[type=text], input[type=search], textarea')) return;
       const k = e.key.toLowerCase();
       if (k === 'r' || k === 'к') this.resetCat();
-      if (e.key === 'Enter' && !e.target.closest?.('button')) this.save();
+      if (e.key === 'Enter' && !e.target.closest?.('button, a')) this.save();
     },
 
-    // Итоговый профиль: грубая нормализация к максимуму каждой категории
     get summary() {
       const score = id => {
         const c = CATEGORIES.find(x => x.id === id);
@@ -281,7 +272,7 @@ function settingsPage() {
       return [
         { id:'o', label:'Нападение', color:'#e8483b', score:o, note: o > 65 ? 'Чистый DPS — стеклянная пушка.' : 'Урон средний, есть запас на усиление.' },
         { id:'d', label:'Защита',    color:'#3b8fe8', score:d, note: d > 50 ? 'Выживаемость на уровне танка.' : 'Мало брони: играйте от укрытий.' },
-        { id:'s', label:'Навыки',    color:'#f2c230', score:s, note: s > 40 ? 'Навыки — основной источник урона/хила.' : 'Навыки вспомогательные.' },
+        { id:'s', label:'Навыки',    color:'#f2c230', score:s, note: s > 40 ? 'Навыки — основной источник урона или хила.' : 'Навыки вспомогательные.' },
       ];
     },
   };

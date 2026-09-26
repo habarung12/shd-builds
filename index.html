@@ -4,98 +4,140 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHD Builds — билды The Division 2</title>
-<meta name="description" content="Билды, база брендов и комплектов снаряжения The Division 2 в стиле интерфейса ИСХ.">
+<meta name="description" content="Билды, база брендов и комплектов снаряжения The Division 2 в стиле меню игры.">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="assets/shd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 
-<body class="scanlines">
+<body x-data="home()" x-init="start()">
 <div id="shd-nav"></div>
 
-<main class="mx-auto max-w-7xl px-4 sm:px-8 py-10 sm:py-16 space-y-16">
+<main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 grid gap-8 lg:grid-cols-[340px_minmax(0,1fr)] items-start">
 
-  <!-- ============ HERO ============ -->
-  <section class="grid gap-10 lg:grid-cols-[1.2fr_1fr] items-center">
-    <div class="space-y-6">
-      <p class="hud-label">ISAC // SHD NETWORK // Агент, подключение установлено</p>
-      <h1 class="hud-h1 glitch !text-4xl sm:!text-6xl leading-tight" data-text="SHD BUILDS">SHD BUILDS</h1>
-      <p class="text-lg sm:text-xl text-shd-muted max-w-xl leading-snug">
-        Билды, бренды и зелёные комплекты The Division 2. Что собрать, где выбить и почему это работает —
-        в одном тактическом терминале.
-      </p>
-      <p class="font-mono text-sm text-shd-muted hud-cursor">Ожидание команды агента</p>
-      <div class="flex flex-wrap gap-3">
-        <a href="build-striker.html" class="btn-tac">Открыть билд</a>
-        <a href="gear.html" class="btn-ghost">База снаряжения</a>
-      </div>
-    </div>
+  <!-- ============ ЛЕВАЯ КОЛОНКА: главное меню (как экран «Home» в игре) ============ -->
+  <section class="space-y-2" aria-label="Главное меню">
+    <a href="build-striker.html" class="menu-btn is-primary">Продолжить</a>
 
-    <!-- Избранный билд -->
-    <a href="build-striker.html" class="gear-card rarity-gearset !p-6 group">
-      <div class="flex items-start gap-4">
-        <div class="brand-hex !w-14 !h-14">ST</div>
-        <div class="min-w-0 flex-1">
-          <p class="hud-label">Избранный билд · DPS</p>
-          <p class="hud-h2">Striker DPS</p>
-          <span class="badge border-shd-gearset/60 text-shd-gearset mt-1">Gear Set</span>
+    <!-- Новости -->
+    <div class="frame glass">
+      <p class="text-center text-2xl py-2 border-b border-white/15">Новости</p>
+      <div class="relative p-4 min-h-[260px] flex flex-col justify-end overflow-hidden">
+        <!-- «обложка» новости: абстрактная графика вместо арта игры -->
+        <div class="absolute inset-0 opacity-70" aria-hidden="true"
+             :style="`background: radial-gradient(70% 60% at 70% 30%, ${news[slide].tint}, transparent 70%)`"></div>
+        <svg class="absolute right-4 top-4 w-28 h-28 text-white/15" viewBox="0 0 24 24" aria-hidden="true" x-html="news[slide].icon"></svg>
+
+        <template x-for="(n, i) in news" :key="i">
+          <a x-show="slide === i" x-transition.opacity.duration.300ms :href="n.href" class="relative block space-y-1 group">
+            <p class="text-shd-orange font-semibold" x-text="n.title"></p>
+            <p class="text-sm text-white/85 leading-snug group-hover:text-white" x-text="n.text"></p>
+          </a>
+        </template>
+        <div class="relative flex gap-1.5 pt-3" role="tablist" aria-label="Новости">
+          <template x-for="(n, i) in news" :key="i">
+            <button type="button" role="tab" class="w-2 h-2" :class="slide === i ? 'bg-shd-orange' : 'bg-white/30 hover:bg-white/60'"
+                    :aria-selected="slide === i" :aria-label="'Новость ' + (i+1)" @click="slide = i; start()"></button>
+          </template>
         </div>
-        <p class="hud-data text-3xl">9.2</p>
       </div>
-      <p class="text-shd-muted leading-snug">4× Striker's Battlegear + Coyote's Mask + Česká Výroba. Стаки за попадания, крит в потолке.</p>
-      <div class="space-y-2">
-        <div class="attr-row"><span class="flex items-center"><i class="attr-dot bg-shd-offense"></i>Урон оружия</span><span class="hud-data">6/6 ядер</span></div>
-        <div class="stat-bar"><span style="width:100%"></span></div>
-        <div class="attr-row"><span class="flex items-center"><i class="attr-dot bg-shd-offense"></i>Striker's Gamble</span><span class="hud-data">до +200%</span></div>
-        <div class="stat-bar"><span style="width:85%"></span></div>
-      </div>
-      <p class="font-mono text-xs text-shd-orange tracking-widest group-hover:translate-x-1 transition">ОТКРЫТЬ РАЗБОР →</p>
-    </a>
-  </section>
+    </div>
 
-  <!-- ============ РАЗДЕЛЫ ============ -->
-  <section class="space-y-6">
-    <h2 class="hud-h2 hud-section"><span class="hud-prefix">Разделы</span></h2>
-    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
-      <a href="settings.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
-        <p class="font-mono text-shd-orange text-3xl">00</p>
-        <p class="hud-h3">Настройки</p>
-        <p class="text-shd-muted leading-snug">Подбор активности, целевые характеристики билда и параметры интерфейса сайта: стекло, размытие, скан-линии.</p>
-      </a>
-      <a href="build-striker.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
-        <p class="font-mono text-shd-orange text-3xl">01</p>
-        <p class="hud-h3">Билды</p>
-        <p class="text-shd-muted leading-snug">Что это, что искать, где и когда применять и почему билд работает. Клик по вещи — где её выбить.</p>
-      </a>
-      <a href="gear.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
-        <p class="font-mono text-shd-orange text-3xl">02</p>
-        <p class="hud-h3">База снаряжения</p>
-        <p class="text-shd-muted leading-snug">Все бренды и зелёные комплекты с фильтрами по типу бонуса и источнику: Целевой трофей, Саммит, Обратный отсчёт.</p>
-      </a>
-      <a href="ui-kit.html" class="panel panel-brackets block space-y-3 transition hover:border-shd-orange/50 hover:shadow-glow">
-        <p class="font-mono text-shd-orange text-3xl">03</p>
-        <p class="hud-h3">UI Kit</p>
-        <p class="text-shd-muted leading-snug">Дизайн-система ИСХ: палитра, карточки снаряжения, тактические кнопки и HUD-типографика.</p>
-      </a>
+    <a href="gear.html" class="menu-btn">База данных</a>
+    <a href="ui-kit.html" class="menu-btn">UI Kit</a>
+
+    <!-- подсказки клавиш -->
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 pt-2 text-sm text-white/85">
+      <span class="flex items-center gap-2"><span class="keycap">↵</span>Выбрать</span>
+      <span class="flex items-center gap-2"><span class="keycap is-accent">A</span><span class="keycap is-accent">E</span>Вкладки</span>
     </div>
   </section>
 
-  <!-- ============ СТАТУС ============ -->
-  <section class="panel grid grid-cols-2 md:grid-cols-4 gap-6">
-    <div><p class="hud-label">Билдов</p><p class="hud-data text-3xl">1</p></div>
-    <div><p class="hud-label">Комплектов</p><p class="hud-data text-3xl">10</p></div>
-    <div><p class="hud-label">Брендов</p><p class="hud-data text-3xl">13</p></div>
-    <div><p class="hud-label">Статус сети</p><p class="font-mono text-3xl text-shd-gearset" style="text-shadow:0 0 8px rgba(41,209,124,.6)">ONLINE</p></div>
-  </section>
+  <!-- ============ ПРАВАЯ КОЛОНКА: станция подбора (как «Matchmaking Station») ============ -->
+  <section class="space-y-3 min-w-0" aria-labelledby="station">
+    <h1 id="station" class="panel-title">Станция агента</h1>
 
-  <footer class="border-t border-white/5 pt-6 flex flex-wrap justify-between gap-4 hud-label">
-    <span>SHD Builds · Фанатский проект, не связан с Ubisoft</span>
-    <span>Данные демонстрационные — сверяйте с актуальным патчем</span>
-  </footer>
+    <div class="grid gap-3 md:grid-cols-[240px_minmax(0,1fr)]">
+      <!-- Инфо о выбранном разделе -->
+      <aside class="frame glass flex flex-col">
+        <div class="p-4 border-b border-white/15">
+          <p class="text-2xl">Раздел</p>
+          <p class="text-sm text-white/85 mt-1" x-text="active.title"></p>
+        </div>
+        <p class="p-4 text-sm text-white/85 leading-relaxed flex-1" x-text="active.text"></p>
+        <div class="border-t border-white/15">
+          <template x-for="s in stats" :key="s.label">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-white/10 last:border-0 text-sm">
+              <span class="flex items-center gap-3"><i class="w-0.5 h-4" :class="s.on ? 'bg-shd-gearset' : 'bg-white/20'"></i><span x-text="s.label"></span></span>
+              <span class="tabular-nums" x-text="s.value"></span>
+            </div>
+          </template>
+        </div>
+      </aside>
+
+      <!-- Плитки разделов -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" role="group" aria-label="Разделы">
+        <template x-for="t in tiles" :key="t.id">
+          <a :href="t.href || null" class="tile-select min-h-[180px] sm:min-h-[210px]"
+             :class="t.soon && 'opacity-50 pointer-events-none'"
+             :aria-pressed="hover === t.id" :aria-disabled="t.soon ? 'true' : null"
+             @mouseenter="hover = t.id" @focus="hover = t.id">
+            <p class="t-title" x-text="t.title"></p>
+            <svg class="ico !w-14 !h-14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" x-html="t.icon"></svg>
+            <p class="t-sub" x-text="t.soon ? 'Скоро' : t.sub"></p>
+          </a>
+        </template>
+      </div>
+    </div>
+  </section>
 </main>
+
+<footer class="mx-auto max-w-7xl px-4 sm:px-8 pb-8 text-sm text-white/60">
+  SHD Builds · фанатский проект, не связан с Ubisoft · данные демонстрационные, сверяйте с актуальным патчем
+</footer>
+
+<script>
+const IC = {
+  build:  '<path d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/>',
+  data:   '<rect x="3" y="3" width="7.5" height="7.5"/><rect x="13.5" y="3" width="7.5" height="7.5"/><rect x="3" y="13.5" width="7.5" height="7.5"/><rect x="13.5" y="13.5" width="7.5" height="7.5"/>',
+  gear:   '<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',
+  kit:    '<path d="M4 4h16v16H4z"/><path d="M4 9h16M9 9v11"/>',
+  dz:     '<circle cx="12" cy="12" r="2"/><path d="M12 10V4a6 6 0 016 3.5M13.7 13l5.2 3a6 6 0 01-6.9 4M10.3 13l-5.2 3A6 6 0 016 7.5"/>',
+  raid:   '<circle cx="12" cy="12" r="9"/><path d="M12 7v5M12 16v.5"/>',
+};
+function home() {
+  return {
+    slide: 0, timer: null, hover: 'builds',
+    news: [
+      { title:'Striker DPS', text:'Новый разбор: 4× Striker\'s Battlegear, Coyote\'s Mask и Česká Výroba. Как разогнать стаки до 200.', href:'build-striker.html', tint:'rgba(247,148,30,.45)', icon:'<path fill="currentColor" d="M12 2l9 4v6c0 5-4 9-9 10-5-1-9-5-9-10V6z"/>' },
+      { title:'База снаряжения', text:'10 комплектов и 13 брендов с фильтрами по типу бонуса и месту фарма.', href:'gear.html', tint:'rgba(41,209,124,.35)', icon:'<path fill="currentColor" d="M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z"/>' },
+      { title:'Настройки интерфейса', text:'Настройте затемнение панелей и размытие фона — как в меню игры.', href:'settings.html', tint:'rgba(90,130,255,.35)', icon:'<circle cx="12" cy="12" r="8" fill="currentColor"/>' },
+    ],
+    tiles: [
+      { id:'builds', title:'Билды',        sub:'Striker DPS',          href:'build-striker.html', icon:IC.build, text:'Разбор билдов: что собрать, где выбить каждую вещь, в каких режимах играть и почему билд работает.' },
+      { id:'db',     title:'База данных',  sub:'Бренды и комплекты',   href:'gear.html',          icon:IC.data,  text:'Все бренды и зелёные комплекты с бонусами и местами фарма: Целевой трофей, Саммит, Обратный отсчёт.' },
+      { id:'set',    title:'Настройки',    sub:'Характеристики',       href:'settings.html',      icon:IC.gear,  text:'Подбор активности, целевые характеристики билда и параметры интерфейса сайта.' },
+      { id:'kit',    title:'UI Kit',       sub:'Дизайн-система',       href:'ui-kit.html',        icon:IC.kit,   text:'Компоненты интерфейса: палитра, карточки снаряжения, кнопки и типографика.' },
+      { id:'dz',     title:'Тёмная зона',  sub:'',  soon:true,  icon:IC.dz,   text:'PvP-билды для Тёмной зоны — раздел в разработке.' },
+      { id:'raid',   title:'Рейды',        sub:'',  soon:true,  icon:IC.raid, text:'Роли и билды для рейдов — раздел в разработке.' },
+    ],
+    stats: [
+      { label:'Билдов', value:'01', on:true },
+      { label:'Комплектов', value:'10', on:true },
+      { label:'Брендов', value:'13', on:true },
+    ],
+    get active() { return this.tiles.find(t => t.id === this.hover); },
+    start() {
+      clearInterval(this.timer);
+      this.timer = setInterval(() => { this.slide = (this.slide + 1) % this.news.length; }, 6000);
+    },
+  };
+}
+</script>
 </body>
 </html>

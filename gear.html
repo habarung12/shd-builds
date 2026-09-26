@@ -7,14 +7,14 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Barlow+Semi+Condensed:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="assets/shd.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js"></script>
 </head>
 
-<body class="scanlines" x-data="gearDb()" x-init="init()">
+<body x-data="gearDb()" x-init="init()">
 <div id="shd-nav"></div>
 <main class="mx-auto max-w-7xl px-4 sm:px-8 py-8 sm:py-12 space-y-8">
 
@@ -33,7 +33,7 @@
   </header>
 
   <!-- ============ ПАНЕЛЬ ФИЛЬТРОВ ============ -->
-  <section class="panel panel-brackets space-y-5" aria-label="Фильтры">
+  <section class="panel space-y-5" aria-label="Фильтры">
     <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-end">
       <label class="block space-y-1.5">
         <span class="hud-label">Поиск</span>
@@ -107,7 +107,7 @@
               <h2 class="hud-h3 truncate" x-text="item.name"></h2>
               <div class="flex gap-1.5 mt-1.5">
                 <template x-for="c in item.cats" :key="c">
-                  <span class="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-wider text-shd-muted">
+                  <span class="inline-flex items-center gap-1 font-mono text-[10px] text-shd-muted">
                     <i class="w-2 h-2 rotate-45" :style="`background:${catColor(c)}`"></i><span x-text="catLabel(c)"></span>
                   </span>
                 </template>
